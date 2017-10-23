@@ -10,7 +10,8 @@
 int main(void)
 {
     uint16_t uiCounter;
-    tsTouchData sTouchData;
+    //tsTouchData sTouchData;
+    tsTouchPos sTouchPos;
 
     /* System clock configuration                                            */
     /* Reference  [Rms]  "Serielle  Kommunikation  RS-232+UART  ARM Cortex M4 /
@@ -39,10 +40,16 @@ int main(void)
 
     while(1)
     {
-        sTouchData = sGetTouchData();
+        //sTouchData = sGetTouchData();
+    	sTouchPos = sGetTouchPos();
 
-        printf("Pos X:%3d, Y:%3d\r\n", sTouchData.uiX, sTouchData.uiY);
+        //printf("Data X: %4d, Y: %4d\tPos X:%3d, Y:%3d\r\n", sTouchData.uiX, sTouchData.uiY, sTouchPos.iX, sTouchPos.iY);
 
-        vDelay_ms(1000);
+        if (sTouchPos.iX != -1)
+        {
+        	vDisplayWindowSet(sTouchPos.iX, sTouchPos.iX, sTouchPos.iY, sTouchPos.iY);
+        	vDisplayStartPixelWrite();
+        	vDisplayPixelWrite(0xFF, 0xFF, 0xFF);
+        }
     }
 }
