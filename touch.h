@@ -1,10 +1,10 @@
 #ifndef TOUCH_H_
 #define TOUCH_H_
 
-/*- Headerdateien -----------------------------------------------------------*/
-#include <stdint.h>
-#include <stdbool.h>
-#include "tm4c1294ncpdt.h"
+/*- Header files ------------------------------------------------------------*/
+#include <stdint.h>                 /* C Standard integer                    */
+#include <stdbool.h>                /* C Standard boolean                    */
+#include "tm4c1294ncpdt.h"          /* TivaWare Library                      */
 
 
 /*- Konstantendefinitionen --------------------------------------------------*/
@@ -20,16 +20,36 @@
 #define TOUCH_CMD_XPOS          0xD0        /* Read X Position command       */
 #define TOUCH_CMD_YPOS          0x90        /* Read Y Position command       */
 
+#define TOUCH_POS_INVALID       (tsTouchPos){-1,-1}     /* Position invalid  */
 
-/*- Typdefinitionen ---------------------------------------------------------*/
-typedef struct tag_tsTouchPos {
+
+/*- Type definitions --------------------------------------------------------*/
+/**
+ *  @struct tsTouchData
+ *  @brief  Touch-Rohdaten
+ *                                                                           */
+typedef struct __attribute__((packed)) tag_tsTouchData {
+    /*! @brief  X-Rohwert                                                    */
     uint16_t uiX;
+    /*! @brief  Y-Rohwert                                                    */
     uint16_t uiY;
+} tsTouchData;
+
+/**
+ *  @struct tsTouchPos
+ *  @brief  Touch-Position als Displaykoordinaten
+ *                                                                           */
+typedef struct __attribute__((packed)) tag_tsTouchPos {
+    /*! @brief  X-Position (vom linken Rand aus)                             */
+    int16_t iX;
+    /*! @brief  Y-Position (vom oberen Rand aus)                             */
+    int16_t iY;
 } tsTouchPos;
 
-/*- Funktionsprototypen -----------------------------------------------------*/
+
+/*- Prototypes --------------------------------------------------------------*/
 void vTouchInit(void);
+tsTouchData sGetTouchData(void);
 tsTouchPos sGetTouchPos(void);
-bool bIsTouchPenDown(void);
 
 #endif /* TOUCH_H_ */
