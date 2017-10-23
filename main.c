@@ -1,40 +1,35 @@
-#include "display.h"
-#include "touch.h"
-#include "delay.h"
-#include "mpp1.h"
-#include <stdio.h>
+/*- Header files ------------------------------------------------------------*/
+#include <stdio.h>                  /* Libc Standard IO                      */
+#include "display.h"                /* Display module                        */
+#include "touch.h"                  /* Touch Controller module               */
+#include "delay.h"                  /* Delay timer module                    */
 
 /**
- * main.c
- */
+ *  @brief  Hauptprogramm
+ *                                                                           */
 int main(void)
 {
     uint16_t uiCounter;
-    tsTouchPos sTouchPos;
+    tsTouchData sTouchData;
 
+    /* System clock configuration                                            */
+    /* Reference  [Rms]  "Serielle  Kommunikation  RS-232+UART  ARM Cortex M4 /
+     * TM4C1294", p. 62                                                      */
     SYSCTL_MOSCCTL_R &= ~(SYSCTL_MOSCCTL_OSCRNG | SYSCTL_MOSCCTL_PWRDN | SYSCTL_MOSCCTL_NOXTAL);
     SYSCTL_MOSCCTL_R |= SYSCTL_MOSCCTL_OSCRNG;
     SYSCTL_RSCLKCFG_R = SYSCTL_RSCLKCFG_OSCSRC_MOSC;
 
+    /* -- Todo: PLL auf 120MHz -- */
+
+    /* Init peripherals                                                      */
     vDelayInit();
+    vDisplayInit();
+    vTouchInit();
 
-    /*SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R11;
-    asm("\tnop\r\n\tnop\r\n\tnop\r\n");
-
-    GPIO_PORTM_DEN_R |= 1 << 0;
-    GPIO_PORTM_DIR_R |= 1 << 0;
-    GPIO_PORTM_DATA_R |= 1 << 0;
-
-    while(1)
-    {
-        vDelay_us(100);
-        GPIO_PORTM_DATA_R ^= (1 << 0);
-    }*/
-
-    /*vDisplayInit();
-
+    /* Clear any previous display data                                       */
     vDisplayClear();
 
+    /* Main application                                                      */
     vDisplayWindowSet(240, 247, 136, 136);
     vDisplayStartPixelWrite();
     for (uiCounter = 0; uiCounter < 8; ++uiCounter)
@@ -44,18 +39,9 @@ int main(void)
 
     while(1)
     {
-        ;
-    }*/
+        sTouchData = sGetTouchData();
 
-    vTouchInit();
-
-
-    while(1)
-    {
-        sTouchPos = sGetTouchPos();
-        uiCounter = bIsTouchPenDown();
-
-        printf("Pen: %d. Pos X:%3d, Y:%3d\r\n", uiCounter, sTouchPos.uiX, sTouchPos.uiY);
+        printf("Pos X:%3d, Y:%3d\r\n", sTouchData.uiX, sTouchData.uiY);
 
         vDelay_ms(1000);
     }
