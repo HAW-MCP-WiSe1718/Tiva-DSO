@@ -4,7 +4,7 @@
 
 /*- Calibration values ------------------------------------------------------*/
 #define TOUCH_CAL_MIN_X 158         /* Minimum X raw value                   */
-#define TOUCH_CAL_MAX_X 3028        /* Maximum X raw value                   */
+#define TOUCH_CAL_MAX_X 3928        /* Maximum X raw value                   */
 #define TOUCH_CAL_MIN_Y 271         /* Minimum Y raw value                   */
 #define TOUCH_CAL_MAX_Y 3715        /* Maximum Y raw value                   */
 
