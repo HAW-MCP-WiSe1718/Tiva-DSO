@@ -225,7 +225,7 @@ void vDisplayClear(void)
 
     vDisplayWindowSet(0,480-1,0,272-1);
     vDisplayStartPixelWrite();
-    for (ulCounter = 0; ulCounter < (479*271); ++ulCounter)
+    for (ulCounter = 0; ulCounter < (480*272); ++ulCounter)
     {
     	vDisplayPixelWrite(0x00, 0x00, 0x00);
     }
