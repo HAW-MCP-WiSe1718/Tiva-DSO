@@ -75,9 +75,15 @@ void vDelay_ms(uint16_t uiMilliseconds)
     /* Configure Timer match register to trigger at "0"                      */
     TIMER0_TAMATCHR_R = 0;
 
+#if SYSCLK_25MHz
     /* Timer configuration for f_Sys = 25MHz                                 */
     TIMER0_TAILR_R = 100;
     TIMER0_TAPR_R = 250;
+#else
+    /* Timer configuration for f_sys = 120MHz                                */
+    TIMER0_TAILR_R = 1000;
+    TIMER0_TAPR_R = 120;
+#endif
 
     /* Clear Timer interrupt                                                 */
     TIMER0_ICR_R |= TIMER_ICR_TATOCINT;
