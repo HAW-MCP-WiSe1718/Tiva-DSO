@@ -112,8 +112,8 @@ uint16_t uiTouchReceive(void)
  *                                                                           */
 static bool bIsTouchDataValid(tsTouchData sTouchData)       /* inline? */
 {
-    return (sTouchData.uiX > TOUCH_CAL_MIN_X && sTouchData.uiX < TOUCH_CAL_MAX_X) &&
-           (sTouchData.uiY > TOUCH_CAL_MIN_Y && sTouchData.uiY > TOUCH_CAL_MAX_Y);
+    return (sTouchData.uiX > TOUCH_CAL_MIN_X) && (sTouchData.uiX < TOUCH_CAL_MAX_X) &&
+           (sTouchData.uiY > TOUCH_CAL_MIN_Y) && (sTouchData.uiY < TOUCH_CAL_MAX_Y);
 }
 
 /**
