@@ -1,12 +1,12 @@
 #ifndef DISPLAY_H_
 #define DISPLAY_H_
 
-/*- Headerdateien -----------------------------------------------------------*/
+/*- Header files ------------------------------------------------------------*/
 #include <stdint.h>                             /* C Standard Integer Typen  */
-#include "tm4c1294ncpdt.h"                      /* TiveWare Driver Library   */
+#include "tm4c1294ncpdt.h"                      /* TivaWare Library          */
 
 
-/*- Konstantendefinitionen --------------------------------------------------*/
+/*- Defines -----------------------------------------------------------------*/
 #define DISPLAY_SIZE_X      480                 /* Display Breite in px      */
 #define DISPLAY_SIZE_Y      272                 /* Display Höhe in pc        */
 
@@ -38,7 +38,7 @@
 #define DISPLAY_CMD_WRITEPX     0x2C            /* Write pixel               */
 
 
-/*- Funktionsprototypen -----------------------------------------------------*/
+/*- Prototypes -------------------------------------------------------------*/
 void vDisplayInit(void);
 void vDisplayWindowSet(uint16_t uiColStart, uint16_t uiColEnd, uint16_t uiRowStart, uint16_t uiRowEnd);
 void vDisplayStartPixelWrite(void);

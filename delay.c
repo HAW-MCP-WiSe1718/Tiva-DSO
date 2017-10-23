@@ -1,13 +1,21 @@
+/*- Header files ------------------------------------------------------------*/
 #include "delay.h"
 
 
+/**
+ *  @brief  Initialise Timers for delay routines
+ *                                                                           */
 void vDelayInit(void)
 {
     SYSCTL_RCGCTIMER_R |= SYSCTL_RCGCTIMER_R0;      /* Timer 0               */
     asm("\tnop\r\n\tnop\r\n\tnop\r\n");
 }
 
-
+/**
+ *  @brief Timer-controlled busy wait for x*1/10ms
+ *
+ *  @param[in]  uiTenthMillis   Zehntel-Millisekunden Verzögerung
+ *                                                                           */
 void vDelay_us(uint16_t uiTenthMillis)
 {
     uint16_t uiCounter = 0;
@@ -17,19 +25,20 @@ void vDelay_us(uint16_t uiTenthMillis)
     TIMER0_CFG_R = 0x04;
     TIMER0_TAMR_R = 0x02;               /* Periodic mode                     */
 
-    /* Preload Value: 16MHz Sysclock, 8bit Prescaler                         */
-    /*      ILV: 125
-     *      PRE: 128
-     *      CLK: 16MHz
-     */
-    /*TIMER0_TAILR_R = 125;
-    TIMER0_TAPR_R = 128;*/
-
+    /* Configure Timer match register to trigger at "0"                      */
     TIMER0_TAMATCHR_R = 0;
 
+    /* Timer configuration for f_Sys = 25MHz                                 */
     TIMER0_TAILR_R = 10;
     TIMER0_TAPR_R = 250;
 
+#if DELAY_CONF_120MHZ
+    /* Timer configuration for f_Sys = 120MHz                                */
+    TIMER0_TAILR_R = 1000;
+    TIMER0_TAPR_R = 120;
+#endif
+
+    /* Clear Timer interrupt                                                 */
     TIMER0_ICR_R |= TIMER_ICR_TATOCINT;
 
     /* Start Timer0A                                                         */
@@ -37,7 +46,7 @@ void vDelay_us(uint16_t uiTenthMillis)
 
     while(uiCounter < uiTenthMillis / 100)
     {
-       /* Entered in 1ms Interval                                            */
+       /* Entered in 100µs Interval                                          */
        if (TIMER0_RIS_R & TIMER_RIS_TATORIS)
        {
            ++uiCounter;
@@ -49,7 +58,11 @@ void vDelay_us(uint16_t uiTenthMillis)
     TIMER0_CTL_R &= ~TIMER_CTL_TAEN;
 }
 
-
+/**
+ *  @brief  Timer-controlled busy-wait for x*1ms
+ *
+ *  @param[in]  uiMilliseconds  Millisekunden Verzögerung
+ *                                                                           */
 void vDelay_ms(uint16_t uiMilliseconds)
 {
     uint16_t uiCounter = 0;
@@ -59,19 +72,14 @@ void vDelay_ms(uint16_t uiMilliseconds)
     TIMER0_CFG_R = 0x04;
     TIMER0_TAMR_R = 0x02;               /* Periodic mode                     */
 
-    /* Preload Value: 16MHz Sysclock, 8bit Prescaler                         */
-    /*      ILV: 125
-     *      PRE: 128
-     *      CLK: 16MHz
-     */
-    /*TIMER0_TAILR_R = 125;
-    TIMER0_TAPR_R = 128;*/
-
+    /* Configure Timer match register to trigger at "0"                      */
     TIMER0_TAMATCHR_R = 0;
 
+    /* Timer configuration for f_Sys = 25MHz                                 */
     TIMER0_TAILR_R = 100;
     TIMER0_TAPR_R = 250;
 
+    /* Clear Timer interrupt                                                 */
     TIMER0_ICR_R |= TIMER_ICR_TATOCINT;
 
     /* Start Timer0A                                                         */
