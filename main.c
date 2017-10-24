@@ -3,6 +3,7 @@
 #include "display.h"                /* Display module                        */
 #include "touch.h"                  /* Touch Controller module               */
 #include "delay.h"                  /* Delay timer module                    */
+#include "system.h"                 /* System configuration module           */
 
 /**
  *  @brief  Hauptprogramm
@@ -13,14 +14,8 @@ int main(void)
     //tsTouchData sTouchData;
     tsTouchPos sTouchPos;
 
-    /* System clock configuration                                            */
-    /* Reference  [Rms]  "Serielle  Kommunikation  RS-232+UART  ARM Cortex M4 /
-     * TM4C1294", p. 62                                                      */
-    SYSCTL_MOSCCTL_R &= ~(SYSCTL_MOSCCTL_OSCRNG | SYSCTL_MOSCCTL_PWRDN | SYSCTL_MOSCCTL_NOXTAL);
-    SYSCTL_MOSCCTL_R |= SYSCTL_MOSCCTL_OSCRNG;
-    SYSCTL_RSCLKCFG_R = SYSCTL_RSCLKCFG_OSCSRC_MOSC;
-
-    /* -- Todo: PLL auf 120MHz -- */
+    /* Configure MOSC and PLL for 120MHz SysClk                              */
+    vSystemClkInit();
 
     /* Init peripherals                                                      */
     vDelayInit();
