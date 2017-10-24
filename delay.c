@@ -28,11 +28,11 @@ void vDelay_us(uint16_t uiTenthMillis)
     /* Configure Timer match register to trigger at "0"                      */
     TIMER0_TAMATCHR_R = 0;
 
+#if SYSCLK_25MHz
     /* Timer configuration for f_Sys = 25MHz                                 */
     TIMER0_TAILR_R = 10;
     TIMER0_TAPR_R = 250;
-
-#if DELAY_CONF_120MHZ
+#else
     /* Timer configuration for f_Sys = 120MHz                                */
     TIMER0_TAILR_R = 1000;
     TIMER0_TAPR_R = 120;
