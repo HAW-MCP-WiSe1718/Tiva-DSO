@@ -34,7 +34,7 @@ void vDelay_us(uint16_t uiTenthMillis)
     TIMER0_TAPR_R = 250;
 #else
     /* Timer configuration for f_Sys = 120MHz                                */
-    TIMER0_TAILR_R = 1000;
+    TIMER0_TAILR_R = 100;
     TIMER0_TAPR_R = 120;
 #endif
 
