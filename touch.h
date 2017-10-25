@@ -22,6 +22,8 @@
 
 #define TOUCH_POS_INVALID       (tsTouchPos){-1,-1}     /* Position invalid  */
 
+#define TOUCH_AVG_SAMPLES		30			/* Number of averaging samples	 */
+
 
 /*- Type definitions --------------------------------------------------------*/
 /**

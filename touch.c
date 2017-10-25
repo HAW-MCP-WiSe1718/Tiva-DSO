@@ -1,5 +1,6 @@
 /*- Header files ------------------------------------------------------------*/
 #include "display.h"                /* Display module for screen size def.   */
+#include "delay.h"
 #include "touch.h"
 
 /*- Calibration values ------------------------------------------------------*/
@@ -173,25 +174,32 @@ tsTouchData sGetTouchData(void)
  *                                                                           */
 tsTouchPos sGetTouchPos(void)
 {
-    tsTouchData sTouchData;
+    tsTouchData sTouchData = {0, 0};
+    tsTouchData sTemp;
+    int iCounter;
 
     /* Get current touch data                                                */
-    sTouchData = sGetTouchData();
+    for (iCounter=0; iCounter < TOUCH_AVG_SAMPLES; iCounter++)
+    {
+    	/* Average over n Samples											 */
+		sTemp = sGetTouchData();
+		if (!bIsTouchDataValid(sTemp))
+		{
+			return TOUCH_POS_INVALID;
+		}
+
+		sTouchData.uiX += sTemp.uiX / TOUCH_AVG_SAMPLES;
+		sTouchData.uiY += sTemp.uiY / TOUCH_AVG_SAMPLES;
+
+		vDelay_us(100);
+    }
 
     /* Check, whether pen is down and data is valid                          */
-    if (bIsTouchDataValid(sTouchData))
-    {
-        tsTouchPos sTouchPos;
+	tsTouchPos sTouchPos;
 
-        /* Pen down: convert to display coordinates                          */
-        sTouchPos.iX = (sTouchData.uiX - TOUCH_CAL_MIN_X) * ((float)DISPLAY_SIZE_X/(TOUCH_CAL_MAX_X-TOUCH_CAL_MIN_X));
-        sTouchPos.iY = (sTouchData.uiY - TOUCH_CAL_MIN_Y) * ((float)DISPLAY_SIZE_Y/(TOUCH_CAL_MAX_Y-TOUCH_CAL_MIN_Y));
+	/* Pen down: convert to display coordinates                          */
+	sTouchPos.iX = (sTouchData.uiX - TOUCH_CAL_MIN_X) * ((float)DISPLAY_SIZE_X/(TOUCH_CAL_MAX_X-TOUCH_CAL_MIN_X));
+	sTouchPos.iY = (sTouchData.uiY - TOUCH_CAL_MIN_Y) * ((float)DISPLAY_SIZE_Y/(TOUCH_CAL_MAX_Y-TOUCH_CAL_MIN_Y));
 
-        return sTouchPos;
-    }
-    else
-    {
-        /* Pen up: return {-1,-1}                                            */
-        return TOUCH_POS_INVALID;
-    }
+	return sTouchPos;
 }
