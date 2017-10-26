@@ -1,8 +1,13 @@
 /*- Header files ------------------------------------------------------------*/
-#include <stdio.h>                  /* Libc Standard IO                      */
+#include <stdbool.h>                /* Libc Standard boolean                 */
+#include <stdint.h>                 /* Libc Standard integer                 */
+#include <stdio.h>                  /* Libc Standard I/O                     */
+#include "driverlib/interrupt.h"    /* TivaWare Interrupt Library            */
 #include "display.h"                /* Display module                        */
 #include "touch.h"                  /* Touch Controller module               */
 #include "delay.h"                  /* Delay timer module                    */
+#include "adc.h"                    /* ADC module                            */
+#include "sampler.h"                /* Sampler module                        */
 #include "system.h"                 /* System configuration module           */
 
 /**
@@ -10,10 +15,6 @@
  *                                                                           */
 int main(void)
 {
-    uint16_t uiCounter;
-    //tsTouchData sTouchData;
-    tsTouchPos sTouchPos;
-
     /* Configure MOSC and PLL for 120MHz SysClk                              */
     vSystemClkInit();
 
@@ -21,30 +22,24 @@ int main(void)
     vDelayInit();
     vDisplayInit();
     vTouchInit();
+    vAdcInit();
+    vSamplerInit();
+
+    /* Enable interrupts                                                     */
+    IntMasterEnable();
 
     /* Clear any previous display data                                       */
     vDisplayClear();
 
-    /* Main application                                                      */
-    vDisplayWindowSet(240, 247, 136, 136);
-    vDisplayStartPixelWrite();
-    for (uiCounter = 0; uiCounter < 8; ++uiCounter)
-    {
-        vDisplayPixelWrite(0xFF, 0xFF, 0xFF);
-    }
+    /* ADC Sampler Test                                                      */
+    vSetSamplerTimebase(EN_SAMPLER_TIMEBASE_1ms);
+    vSetSamplerTrigger(EN_SAMPLER_TRIGSRC_CONTINUOUS, EN_SAMPLER_TRIGMODE_NORMAL);
 
     while(1)
     {
-        //sTouchData = sGetTouchData();
-    	sTouchPos = sGetTouchPos();
+        printf("CPU Temp: %3d\tADC PE1: %4d\r\n", iGetAdcChipTemperature(), g_aiSampleBuffer[0]);
+        g_aiSampleBuffer[0] = SAMPLER_SAMPLE_INVALID;
 
-        //printf("Data X: %4d, Y: %4d\tPos X:%3d, Y:%3d\r\n", sTouchData.uiX, sTouchData.uiY, sTouchPos.iX, sTouchPos.iY);
-
-        if (sTouchPos.iX != -1)
-        {
-        	vDisplayWindowSet(sTouchPos.iX, sTouchPos.iX, sTouchPos.iY, sTouchPos.iY);
-        	vDisplayStartPixelWrite();
-        	vDisplayPixelWrite(0xFF, 0xFF, 0xFF);
-        }
+        vDelay_ms(100);
     }
 }
