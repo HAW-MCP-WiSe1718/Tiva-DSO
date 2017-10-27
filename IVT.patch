@@ -1,0 +1,7 @@
+36a37,38
+> extern void __attribute__((interrupt)) vISR_AdcVinSequencer(void); /* see sampler.c                     */
+> 
+100c102
+<     IntDefaultHandler,                      // ADC Sequence 0
+---
+>     vISR_AdcVinSequencer,                   // ADC Sequence 0
