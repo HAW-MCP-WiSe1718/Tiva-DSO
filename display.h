@@ -3,25 +3,25 @@
 
 /*- Header files ------------------------------------------------------------*/
 #include <stdint.h>                             /* C Standard Integer Typen  */
-#include "tm4c1294ncpdt.h"                      /* TivaWare Library          */
 
 
 /*- Defines -----------------------------------------------------------------*/
 #define DISPLAY_SIZE_X      480                 /* Display Breite in px      */
 #define DISPLAY_SIZE_Y      272                 /* Display Höhe in pc        */
 
-#define DISPLAY_CTL_DEN     GPIO_PORTL_DEN_R    /* GPIO DEN für Control-Port */
-#define DISPLAY_CTL_DIR     GPIO_PORTL_DIR_R    /* GPIO DIR für Control-Port */
-#define DISPLAY_CTL_PORT    GPIO_PORTL_DATA_R   /* GPIO Daten für Control    */
+#define DISPLAY_CTL_RCGC    SYSCTL_PERIPH_GPIOL /* Control Pins GPIO Periph. */
+#define DISPLAY_CTL_PORT    GPIO_PORTL_BASE     /* Control Pins GPIO Port    */
+#define DISPLAY_CTL_PORT_R  GPIO_PORTL_DATA_R   /* Ctrl Pins GPIO Port Reg.  */
+
 #define DISPLAY_CTL_PIN_RD  0                   /* Read-Pin Out              */
 #define DISPLAY_CTL_PIN_WR  1                   /* Write-Pin Out             */
 #define DISPLAY_CTL_PIN_RS  2                   /* R/S Pin Out               */
 #define DISPLAY_CTL_PIN_CS  3                   /* Chip select Out           */
 #define DISPLAY_CTL_PIN_RST 4                   /* Display Reset Out         */
 
-#define DISPLAY_DATA_DEN    GPIO_PORTM_DEN_R    /* GPIO DEN für Daten-Port   */
-#define DISPLAY_DATA_DIR    GPIO_PORTM_DIR_R    /* GPIO DIR für Daten-Port   */
-#define DISPLAY_DATA_PORT   GPIO_PORTM_DATA_R   /* GPIO Daten-Port           */
+#define DISPLAY_DATA_RCGC   SYSCTL_PERIPH_GPIOM /* Data Pins GPIO Peripheral */
+#define DISPLAY_DATA_PORT   GPIO_PORTM_BASE     /* Data Pins GPIO Port       */
+#define DISPLAY_DATA_PORT_R GPIO_PORTM_DATA_R   /* Data Pins GPIO Port Reg.  */
 
 #define DISPLAY_CMD_SOFTRESET   0x01            /* Software reset command    */
 #define DISPLAY_CMD_SETPLL      0xE2            /* Set PLL Freq. command     */
