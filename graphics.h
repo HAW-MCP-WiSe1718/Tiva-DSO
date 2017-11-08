@@ -1,33 +1,61 @@
+#include "display.h"
+
 #ifndef GRAPHICS_H_
 #define GRAPHICS_H_
 
-#include <stdint.h>
-#include "text.h"
+typedef struct{
+    uint16_t uiX;
+    uint16_t uiY;
+}tsGraphicsCoord;
 
-#define CURSERBOTTOM 0
-#define CURSERTOP 271
+typedef struct{
+    uint8_t reserved;
 
-#define GRIDXSTART 0
-#define GRIDXEND   480-1
-#define GRIDYSTART 16
-#define GRIDYEND   272-1
-#define GRIDXSPACE 40
-#define GRIDYSPACE 32
+    uint8_t uiRedValue;
+    uint8_t uiGreenValue;
+    uint8_t uiBlueValue;
+}tsGraphicsColor;
 
-#define GRIDCOLOR (color){.colorValue=0xF0F0F0}
-#define WAVECOLOR (color){.colorValue=0xFFFF00}
-#define ACURSERCOLOR (color){.colorValue=0x0000FF}
-#define BCURSERCOLOR (color){.colorValue=0X00FF00}
+typedef union{
+    uint32_t uiColorValue;
+    tsGraphicsColor colorSeperate;
+}tuGraphicsColor;
 
-#define BLACKCOLOR (color){.colorValue=0x000000}
+#define GRAPHICS_GRIDXSTART 0
+#define GRAPHICS_GRIDXEND   480-1
+#define GRAPHICS_GRIDYSTART 16
+#define GRAPHICS_GRIDYEND   272-1
+#define GRAPHICS_GRIDXSPACE 40
+#define GRAPHICS_GRIDYSPACE 32
+
+#define GRAPHICS_WAVEXSTART 1-1
+#define GRAPHICS_WAVEXEND 480-1
+
+#define GRAPHICS_PRINTBUFFER_SIZE 480
+
+#define GRAPHICS_BLACKCOLOR  (tuGraphicsColor){.uiColorValue=0x000000}
+#define GRAPHICS_REDCOLOR    (tuGraphicsColor){.uiColorValue=0x0000FF}
+#define GRAPHICS_GREENCOLOR  (tuGraphicsColor){.uiColorValue=0x00FF00}
+#define GRAPHICS_BLUECOLOR   (tuGraphicsColor){.uiColorValue=0xFF0000}
+
+#define GRAPHICS_GRIDCOLOR    (tuGraphicsColor){.uiColorValue=0x808080}
+#define GRAPHICS_WAVECOLOR    (tuGraphicsColor){.uiColorValue=0xFFFF00}
+#define GRAPHICS_ACURSERCOLOR (tuGraphicsColor){.uiColorValue=0x0000FF}
+#define GRAPHICS_BCURSERCOLOR (tuGraphicsColor){.uiColorValue=0X00FF00}
 
 
-void graphicsInit(void);
+void vGraphicsInit(void);
 
-void printRectangle(uint16_t,uint16_t,uint16_t,uint16_t,color);
-void printLineBresenham(uint16_t,uint16_t,uint16_t,uint16_t,color);
-void printWave(uint8_t*,uint16_t,uint16_t,color);
-void printGrid(void);
-void updateWave(uint16_t*,uint8_t*,uint16_t,uint16_t,color);
+void vGraphicsPixelWrite(tuGraphicsColor);
+void vGraphicsPrintRectangle(uint16_t,uint16_t,uint16_t,uint16_t,tuGraphicsColor);
+void vGraphicsDrawLine(tsGraphicsCoord,tsGraphicsCoord,tuGraphicsColor);
+
+void vGraphicsPrintWave(tuGraphicsColor);
+void vGraphicsPrintWaveSingle(uint16_t,tuGraphicsColor);
+void vGraphicsPrintPartOfWave(uint16_t,uint16_t,tuGraphicsColor);
+
+void vGraphicsUpdateWave(int16_t*,tuGraphicsColor);
+void vGraphicsUpdateWaveSingle(int16_t*,uint16_t,tuGraphicsColor);
+void vGraphicsUpdatePartOfWave(int16_t*,uint16_t,uint16_t,tuGraphicsColor);
 
 #endif
