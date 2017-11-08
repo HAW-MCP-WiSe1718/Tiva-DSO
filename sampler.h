@@ -50,21 +50,52 @@ typedef enum tag_teSamplerTrigMode {
 } teSamplerTrigMode;
 
 typedef enum tag_teSamplerTimebase {
+    /*! 100us/div: 400kSps          */
     EN_SAMPLER_TIMEBASE_100us = 300,
+
+    /*! 200us/div: 200kSps          */
     EN_SAMPLER_TIMEBASE_200us = 600,
+
+    /*! 500us/div: 80kSps           */
     EN_SAMPLER_TIMEBASE_500us = 1500,
+
+    /*! 1ms/div: 40kSps             */
     EN_SAMPLER_TIMEBASE_1ms = 3000,
+
+    /*! 2ms/div: 20kSps             */
     EN_SAMPLER_TIMEBASE_2ms = 6000,
+
+    /*! 5ms/div: 8kSps              */
     EN_SAMPLER_TIMEBASE_5ms = 15000,
+
+    /*! 10ms/div: 4kSps             */
     EN_SAMPLER_TIMEBASE_10ms = 30000,
+
+    /*! 20ms/div: 2kSps             */
     EN_SAMPLER_TIMEBASE_20ms = 60000,
+
+    /*! 50ms/div: 800Sps            */
     EN_SAMPLER_TIMEBASE_50ms = 150000,
+
+    /*! 100ms/div: 400Sps           */
     EN_SAMPLER_TIMEBASE_100ms = 300000,
+
+    /*! 200ms/div: 200Sps           */
     EN_SAMPLER_TIMEBASE_200ms = 600000,
+
+    /*! 500ms/div: 80Sps            */
     EN_SAMPLER_TIMEBASE_500ms = 1500000,
+
+    /*! 1s/div: 40Sps               */
     EN_SAMPLER_TIMEBASE_1s = 3000000,
+
+    /*! 2s/div: 20Sps               */
     EN_SAMPLER_TIMEBASE_2s = 6000000,
+
+    /*! 5s/div: 8Sps                */
     EN_SAMPLER_TIMEBASE_5s = 15000000,
+
+    /*! Do not use                  */
     EN_SAMPLER_TIMEBASE_MAX = 0xFFFFFFFF
 } teSamplerTimebase;
 
