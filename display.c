@@ -1,6 +1,13 @@
 /*- Headerfiles -------------------------------------------------------------*/
+#include <stdbool.h>                /* Libc Standard boolean                 */
+#include <stdint.h>                 /* Libc Standard integer                 */
+#include "tm4c1294ncpdt.h"          /* TivaWare Hardware Register Map        */
+#include "inc/hw_memmap.h"          /* TivaWare Memory Map                   */
+#include "driverlib/gpio.h"         /* TivaWare GPIO DriverLib               */
+#include "driverlib/pin_map.h"      /* TivaWare GPIO Pin Mapping             */
+#include "driverlib/sysctl.h"       /* TivaWare SysCtl DriverLib             */
+#include "delay.h"                  /* Delay Module                          */
 #include "display.h"
-#include "delay.h"
 
 
 /*- Local Prototypes --------------------------------------------------------*/
@@ -19,20 +26,21 @@ static void vDisplaySendData(uint8_t ucData);
 void vDisplayInitGPIO(void)
 {
     /* GPIO Clock                                                            */
-    SYSCTL_RCGCGPIO_R |= (1 << 10) | (1 << 11);     /* PORTL, PORTM          */
-    asm("\tnop\r\n\tnop\r\n\tnop\r\n");             /* Lock time > 3 Cycles  */
+    SysCtlPeripheralEnable(DISPLAY_CTL_RCGC);
+    SysCtlPeripheralEnable(DISPLAY_DATA_RCGC);
+    asm("\tnop\r\n\tnop\r\n\tnop\r\n"); /* Lock time > 3 Cycles              */
 
-    /* Enable digital function                                               */
-    DISPLAY_CTL_DEN = 0x1F;
-    DISPLAY_DATA_DEN = 0xFF;
+    /* Configure digital function                                            */
+    GPIOPadConfigSet(DISPLAY_CTL_PORT, 0x1F, GPIO_STRENGTH_8MA, GPIO_PIN_TYPE_STD);
+    GPIOPadConfigSet(DISPLAY_DATA_PORT, 0xFF, GPIO_STRENGTH_8MA, GPIO_PIN_TYPE_STD);
 
-    /* Setup Data direction                                                  */
-    DISPLAY_CTL_DIR = 0x1F;                         /* All Output            */
-    DISPLAY_DATA_DIR = 0xFF;                        /* All Output            */
+    /* Set pin directions                                                    */
+    GPIODirModeSet(DISPLAY_CTL_PORT, 0x1F, GPIO_DIR_MODE_OUT);
+    GPIODirModeSet(DISPLAY_DATA_PORT, 0xFF, GPIO_DIR_MODE_OUT);
 
-    /* Initial values                                                        */
-    DISPLAY_CTL_PORT = 0x1F;
-    DISPLAY_DATA_PORT = 0x00;
+    /* Set initial values                                                    */
+    DISPLAY_CTL_PORT_R = 0x1F;
+    DISPLAY_DATA_PORT_R = 0x00;
 }
 
 /**
@@ -45,16 +53,16 @@ void vDisplayInitGPIO(void)
  *                                                                           */
 void vDisplaySendCmd(uint8_t ucCommand)
 {
-    DISPLAY_CTL_PORT = 0x1F;        /* Initial state                         */
+    DISPLAY_CTL_PORT_R = 0x1F;      /* Initial state                         */
 
-    DISPLAY_CTL_PORT &= ~(1 << DISPLAY_CTL_PIN_CS); /* Activate chip select  */
-    DISPLAY_CTL_PORT &= ~(1 << DISPLAY_CTL_PIN_RS); /* Command mode          */
-    DISPLAY_CTL_PORT &= ~(1 << DISPLAY_CTL_PIN_WR); /* Write state           */
+    DISPLAY_CTL_PORT_R &= ~(1 << DISPLAY_CTL_PIN_CS); /* Activate CS         */
+    DISPLAY_CTL_PORT_R &= ~(1 << DISPLAY_CTL_PIN_RS); /* Command mode        */
+    DISPLAY_CTL_PORT_R &= ~(1 << DISPLAY_CTL_PIN_WR); /* Write state         */
 
-    DISPLAY_DATA_PORT = ucCommand;  /* Command                               */
+    DISPLAY_DATA_PORT_R = ucCommand; /* Command                              */
 
-    DISPLAY_CTL_PORT |= 1 << DISPLAY_CTL_PIN_WR;    /* Exit write state      */
-    DISPLAY_CTL_PORT |= 1 << DISPLAY_CTL_PIN_CS;    /* Disable chip select   */
+    DISPLAY_CTL_PORT_R |= 1 << DISPLAY_CTL_PIN_WR;    /* Exit write state    */
+    DISPLAY_CTL_PORT_R |= 1 << DISPLAY_CTL_PIN_CS;    /* Disable chip select */
 }
 
 /**
@@ -67,16 +75,16 @@ void vDisplaySendCmd(uint8_t ucCommand)
  *                                                                           */
 void vDisplaySendData(uint8_t ucData)
 {
-    DISPLAY_CTL_PORT = 0x1F;        /* Initial state                         */
+    DISPLAY_CTL_PORT_R = 0x1F;      /* Initial state                         */
 
-    DISPLAY_CTL_PORT &= ~(1 << DISPLAY_CTL_PIN_CS); /* Activate chip select  */
-    DISPLAY_CTL_PORT |= 1 << DISPLAY_CTL_PIN_RS;    /* Data mode             */
-    DISPLAY_CTL_PORT &= ~(1 << DISPLAY_CTL_PIN_WR); /* Write state           */
+    DISPLAY_CTL_PORT_R &= ~(1 << DISPLAY_CTL_PIN_CS); /* Activate CS         */
+    DISPLAY_CTL_PORT_R |= 1 << DISPLAY_CTL_PIN_RS;    /* Data mode           */
+    DISPLAY_CTL_PORT_R &= ~(1 << DISPLAY_CTL_PIN_WR); /* Write state         */
 
-    DISPLAY_DATA_PORT = ucData;     /* Data                                  */
+    DISPLAY_DATA_PORT_R = ucData;   /* Data                                  */
 
-    DISPLAY_CTL_PORT |= 1 << DISPLAY_CTL_PIN_WR;    /* Exit write state      */
-    DISPLAY_CTL_PORT |= 1 << DISPLAY_CTL_PIN_CS;    /* Disable chip select   */
+    DISPLAY_CTL_PORT_R |= 1 << DISPLAY_CTL_PIN_WR;    /* Exit write state    */
+    DISPLAY_CTL_PORT_R |= 1 << DISPLAY_CTL_PIN_CS;    /* Disable chip select */
 }
 
 /**
@@ -90,10 +98,10 @@ void vDisplayInit(void)
     vDisplayInitGPIO();             /* Setup GPIO registers                  */
 
     /* Reset display                                                         */
-    DISPLAY_CTL_PORT = 0x1F;        /* Initial state                         */
-    DISPLAY_CTL_PORT &= ~(1 << DISPLAY_CTL_PIN_RST); /* Reset display        */
+    DISPLAY_CTL_PORT_R = 0x1F;      /* Initial state                         */
+    DISPLAY_CTL_PORT_R &= ~(1 << DISPLAY_CTL_PIN_RST); /* Reset display      */
     vDelay_us(150);
-    DISPLAY_CTL_PORT |= 1 << DISPLAY_CTL_PIN_RST;   /* Enable display        */
+    DISPLAY_CTL_PORT_R |= 1 << DISPLAY_CTL_PIN_RST;    /* Enable display     */
 
     /* Display soft-reset                                                    */
     vDisplaySendCmd(DISPLAY_CMD_SOFTRESET);
@@ -216,8 +224,6 @@ void vDisplayPixelWrite(uint8_t ucRed, uint8_t ucGreen, uint8_t ucBlue)
 
 /**
  *  @brief  Clear display (overwrite entire area with black pixels)
- *
- *  @todo   Move this function to the "Graphics" module
  *                                                                           */
 void vDisplayClear(void)
 {
