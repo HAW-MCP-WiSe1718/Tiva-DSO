@@ -1,4 +1,9 @@
 /*- Header files ------------------------------------------------------------*/
+#include <stdbool.h>                /* Libc Standard Boolean                 */
+#include <stdint.h>                 /* Libc Standard Integer                 */
+#include <inc/hw_memmap.h>          /* TivaWare Hardware Memory Map          */
+#include <driverlib/timer.h>        /* TivaWare Timer DriverLib              */
+#include <driverlib/sysctl.h>       /* TivaWare SysCtl DriverLib             */
 #include "delay.h"
 
 
@@ -7,100 +12,87 @@
  *                                                                           */
 void vDelayInit(void)
 {
-    SYSCTL_RCGCTIMER_R |= SYSCTL_RCGCTIMER_R0;      /* Timer 0               */
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);
     asm("\tnop\r\n\tnop\r\n\tnop\r\n");
 }
 
 /**
- *  @brief Timer-controlled busy wait for x*1/10ms
+ *  @brief Timer-controlled busy wait
  *
- *  @param[in]  uiTenthMillis   Zehntel-Millisekunden Verzögerung
+ *  @param[in]  uiMicroseconds      Delay in microseconds, rounded to the
+ *                                  next 100us.
  *                                                                           */
-void vDelay_us(uint16_t uiTenthMillis)
+void vDelay_us(uint16_t uiMicroseconds)
 {
     uint16_t uiCounter = 0;
 
-    /* Configure Timer0A as Delay timer with 1us period                      */
-    TIMER0_CTL_R &= ~TIMER_CTL_TAEN;    /* Disable timer before making chgs. */
-    TIMER0_CFG_R = 0x04;
-    TIMER0_TAMR_R = 0x02;               /* Periodic mode                     */
+    /* Use system clock as timer clock source                                */
+    TimerClockSourceSet(TIMER0_BASE, TIMER_CLOCK_SYSTEM);
 
-    /* Configure Timer match register to trigger at "0"                      */
-    TIMER0_TAMATCHR_R = 0;
+    /* Configure Timer for periodic counting                                 */
+    TimerConfigure(TIMER0_BASE, TIMER_CFG_A_PERIODIC | TIMER_CFG_A_ACT_NONE | TIMER_CFG_SPLIT_PAIR);
+    TimerMatchSet(TIMER0_BASE, TIMER_A, 0);
 
-#if SYSCLK_25MHz
-    /* Timer configuration for f_Sys = 25MHz                                 */
-    TIMER0_TAILR_R = 10;
-    TIMER0_TAPR_R = 250;
-#else
-    /* Timer configuration for f_Sys = 120MHz                                */
-    TIMER0_TAILR_R = 100;
-    TIMER0_TAPR_R = 120;
-#endif
+    /* Setup Timer prescaler and interval load values for f_SysClk           */
+    TimerLoadSet(TIMER0_BASE, TIMER_A, 100);
+    TimerPrescaleSet(TIMER0_BASE, TIMER_A, 120);
 
-    /* Clear Timer interrupt                                                 */
-    TIMER0_ICR_R |= TIMER_ICR_TATOCINT;
+    /* Clear Interrupt flag and start timer                                  */
+    TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
+    TimerEnable(TIMER0_BASE, TIMER_A);
 
-    /* Start Timer0A                                                         */
-    TIMER0_CTL_R |= TIMER_CTL_TAEN;
-
-    while(uiCounter < uiTenthMillis / 100)
+    while (uiCounter < uiMicroseconds / 100)
     {
-       /* Entered in 100µs Interval                                          */
-       if (TIMER0_RIS_R & TIMER_RIS_TATORIS)
-       {
-           ++uiCounter;
-           TIMER0_ICR_R |= TIMER_ICR_TATOCINT;
-       }
+        /* Busy wait until timer timeout interrupt flag is set               */
+        if (TimerIntStatus(TIMER0_BASE, false) & TIMER_TIMA_TIMEOUT)
+        {
+            ++uiCounter;
+
+            /* Clear timeout interrupt flag                                  */
+            TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
+        }
     }
 
-    /* Done. Stop timer                                                      */
-    TIMER0_CTL_R &= ~TIMER_CTL_TAEN;
+    /* Done. Stop the timer                                                  */
+    TimerDisable(TIMER0_BASE, TIMER_A);
 }
 
 /**
- *  @brief  Timer-controlled busy-wait for x*1ms
+ *  @brief  Timer-controlled busy-wait
  *
- *  @param[in]  uiMilliseconds  Millisekunden Verzögerung
+ *  @param[in]  uiMilliseconds  Delay in milliseconds
  *                                                                           */
 void vDelay_ms(uint16_t uiMilliseconds)
 {
     uint16_t uiCounter = 0;
 
-    /* Configure Timer0A as Delay timer with 1us period                      */
-    TIMER0_CTL_R &= ~TIMER_CTL_TAEN;    /* Disable timer before making chgs. */
-    TIMER0_CFG_R = 0x04;
-    TIMER0_TAMR_R = 0x02;               /* Periodic mode                     */
+    /* Use system clock as timer clock source                                */
+    TimerClockSourceSet(TIMER0_BASE, TIMER_CLOCK_SYSTEM);
 
-    /* Configure Timer match register to trigger at "0"                      */
-    TIMER0_TAMATCHR_R = 0;
+    /* Configure Timer for periodic counting                                 */
+    TimerConfigure(TIMER0_BASE, TIMER_CFG_A_PERIODIC | TIMER_CFG_A_ACT_NONE | TIMER_CFG_SPLIT_PAIR);
+    TimerMatchSet(TIMER0_BASE, TIMER_A, 0);
 
-#if SYSCLK_25MHz
-    /* Timer configuration for f_Sys = 25MHz                                 */
-    TIMER0_TAILR_R = 100;
-    TIMER0_TAPR_R = 250;
-#else
-    /* Timer configuration for f_sys = 120MHz                                */
-    TIMER0_TAILR_R = 1000;
-    TIMER0_TAPR_R = 120;
-#endif
+    /* Setup Timer prescaler and interval load values for f_SysClk           */
+    TimerLoadSet(TIMER0_BASE, TIMER_A, 1000);
+    TimerPrescaleSet(TIMER0_BASE, TIMER_A, 120);
 
-    /* Clear Timer interrupt                                                 */
-    TIMER0_ICR_R |= TIMER_ICR_TATOCINT;
+    /* Clear Interrupt flag and start timer                                  */
+    TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
+    TimerEnable(TIMER0_BASE, TIMER_A);
 
-    /* Start Timer0A                                                         */
-    TIMER0_CTL_R |= TIMER_CTL_TAEN;
-
-    while(uiCounter < uiMilliseconds)
+    while (uiCounter < uiMilliseconds)
     {
-       /* Entered in 1ms Interval                                            */
-       if (TIMER0_RIS_R & TIMER_RIS_TATORIS)
-       {
-           ++uiCounter;
-           TIMER0_ICR_R |= TIMER_ICR_TATOCINT;
-       }
+        /* Busy wait until timer timeout interrupt flag is set               */
+        if (TimerIntStatus(TIMER0_BASE, false) & TIMER_TIMA_TIMEOUT)
+        {
+            ++uiCounter;
+
+            /* Clear timeout interrupt flag                                  */
+            TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
+        }
     }
 
-    /* Done. Stop timer                                                      */
-    TIMER0_CTL_R &= ~TIMER_CTL_TAEN;
+    /* Done. Stop the timer.                                                 */
+    TimerDisable(TIMER0_BASE, TIMER_A);
 }
