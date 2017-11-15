@@ -10,11 +10,20 @@ tsUiTouchBox asUiTouchBoxConfiguration[UI_MAX_NUM_BOXES] = {0};
 static bool bUiTouchLastPenDown = false;
 
 
+/**
+ *  @brief  Initialise UI Touch module
+ *                                                                           */
 void vUiTouchInit(void)
 {
 
 }
 
+/**
+ *  @brief  Handle touch input.
+ *
+ *  This function will call the specified callback function for each box when
+ *  a click is detected.
+ *                                                                           */
 void vUiTouchPoll(void)
 {
     uint8_t ucBoxNum;
@@ -49,4 +58,16 @@ void vUiTouchPoll(void)
             asUiTouchBoxConfiguration[ucBoxNum].p_fOnTouch();
         }
     }
+}
+
+/**
+ *  @brief  Add a new touch box
+ *                                                                           */
+void vUiTouchAddBox(int iArrayIndex, tsUiCoords sTopLeft, tsUiCoords sBtmRight, tp_fUiTouchCallback p_fCallback)
+{
+    assert(iArrayIndex >= 0 && iArrayIndex < UI_MAX_NUM_BOXES);
+
+    asUiTouchBoxConfiguration[iArrayIndex].sTopLeft = sTopLeft;
+    asUiTouchBoxConfiguration[iArrayIndex].sBtmRight = sBtmRight;
+    asUiTouchBoxConfiguration[iArrayIndex].p_fOnTouch = p_fCallback;
 }

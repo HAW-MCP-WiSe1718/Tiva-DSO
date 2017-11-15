@@ -6,7 +6,7 @@
 
 
 /*- Defines -----------------------------------------------------------------*/
-#define UI_MAX_NUM_BOXES    8       /* Maximum number of touch input areas   */
+#define UI_MAX_NUM_BOXES    16       /* Maximum number of touch input areas   */
 
 
 /*- Type definitions --------------------------------------------------------*/
@@ -23,5 +23,6 @@ extern tsUiTouchBox asUiTouchBoxConfiguration[UI_MAX_NUM_BOXES];
 /*- Prototypes --------------------------------------------------------------*/
 void vUiTouchInit(void);
 void vUiTouchPoll(void);
+void vUiTouchAddBox(int iArrayIndex, tsUiCoords sTopLeft, tsUiCoords sBottomRight, tp_fUiTouchCallback p_fCallback);
 
 #endif /* UI_INPUT_H_ */
