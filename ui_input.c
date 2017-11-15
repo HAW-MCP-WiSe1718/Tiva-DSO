@@ -1,4 +1,5 @@
 /*- Headerfiles -------------------------------------------------------------*/
+#include <assert.h>                 /* Assertions                            */
 #include <stdlib.h>                 /* Libc Standard Library Header          */
 #include <stdbool.h>                /* Libc Standard Boolean                 */
 #include "touch.h"                  /* Touch module                          */
