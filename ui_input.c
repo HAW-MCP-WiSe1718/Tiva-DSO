@@ -56,7 +56,7 @@ void vUiTouchPoll(void)
             (asUiTouchBoxConfiguration[ucBoxNum].sBtmRight.iY >= sTouchPos.iY))
         {
             /* Found box, run callback function                              */
-            asUiTouchBoxConfiguration[ucBoxNum].p_fOnTouch();
+            asUiTouchBoxConfiguration[ucBoxNum].p_fOnTouch((tsUiCoords){sTouchPos.iX, sTouchPos.iY});
         }
     }
 }

@@ -10,7 +10,7 @@
 
 
 /*- Type definitions --------------------------------------------------------*/
-typedef void (*tp_fUiTouchCallback)(void);
+typedef void (*tp_fUiTouchCallback)(tsUiCoords sTouchPosition);
 
 typedef struct tag_tsUiTouchBox {
     tsUiCoords sTopLeft;
