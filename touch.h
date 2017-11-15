@@ -54,4 +54,16 @@ void vTouchInit(void);
 tsTouchData sGetTouchData(void);
 tsTouchPos sGetTouchPos(void);
 
+
+/*- Inline functions --------------------------------------------------------*/
+/**
+ *  @brief  Check touch position whether pen is down or not
+ *
+ *  @return bool    true, if position is valid
+ */
+static inline bool bTouchIsPenDown(tsTouchPos sTouchPos)
+{
+    return (sTouchPos.iX > 0 && sTouchPos.iY > 0);
+}
+
 #endif /* TOUCH_H_ */
