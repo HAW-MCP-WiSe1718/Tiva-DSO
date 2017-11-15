@@ -44,7 +44,7 @@ static inline void vSamplerClearBuffer(int16_t* p_aiBuffer)
 
 /*- Local prototypes --------------------------------------------------------*/
 static void vSamplerStop(void);
-static void vSamplerStartTimer(bool bSingleCapture);
+static void vSamplerStartTimer(void);
 
 
 /**
@@ -110,10 +110,8 @@ void vSetSamplerTrigger(teSamplerTrigSrc eTriggerSource, teSamplerTrigMode eTrig
         switch (eTriggerMode)
         {
         case EN_SAMPLER_TRIGMODE_NORMAL:
-            vSamplerStartTimer(false);
-            break;
         case EN_SAMPLER_TRIGMODE_SINGLE:
-            vSamplerStartTimer(true);
+            vSamplerStartTimer();
             break;
         default:
             vSamplerStop();
@@ -150,7 +148,7 @@ static void vSamplerStop(void)
 /**
  *  @brief  Configure ADC sequencer to trigger from Timer 1
  *                                                                           */
-static void vSamplerStartTimer(bool bSingleCapture)
+static void vSamplerStartTimer(void)
 {
     /* Clear Sample bufffer                                                  */
     vSamplerClearBuffer(g_aiSampleBuffer);
@@ -161,22 +159,14 @@ static void vSamplerStartTimer(bool bSingleCapture)
     ADCSequenceConfigure(ADC0_BASE, ADC_SEQ_VIN, ADC_TRIGGER_TIMER, 0);
     ADCSequenceEnable(ADC0_BASE, ADC_SEQ_VIN);
 
-    if (bSingleCapture)
-    {
-        /* Enable ADC Sequence Complete interrupt                            */
-        ADCIntEnable(ADC0_BASE, ADC_SEQ_VIN);
-    }
-    else
-    {
-        /* Enable DMA transfer to buffer                                     */
-        ADCIntEnableEx(ADC0_BASE, ADC_INT_DMA_SS0);
-        uDMAChannelTransferSet(UDMA_CHANNEL_ADC0 | UDMA_PRI_SELECT,
-                               UDMA_MODE_BASIC,
-                               (void*)&ADC0_SSFIFO0_R,
-                               g_aiSampleBuffer,
-                               SAMPLER_BUF_LEN);
-        uDMAChannelEnable(UDMA_CHANNEL_ADC0);
-    }
+    /* Enable DMA transfer to buffer                                     */
+    ADCIntEnableEx(ADC0_BASE, ADC_INT_DMA_SS0);
+    uDMAChannelTransferSet(UDMA_CHANNEL_ADC0 | UDMA_PRI_SELECT,
+                           UDMA_MODE_BASIC,
+                           (void*)&ADC0_SSFIFO0_R,
+                           g_aiSampleBuffer,
+                           SAMPLER_BUF_LEN);
+    uDMAChannelEnable(UDMA_CHANNEL_ADC0);
 }
 
 /**
@@ -188,9 +178,7 @@ void __attribute__((interrupt)) vISR_AdcVinSequencer(void)
     ADCIntClearEx(ADC0_BASE, ADC_INT_SS0 | ADC_INT_DMA_SS0);
 
     /* To be completed                                                       */
-
-    //g_aiSampleBuffer[0] = ADC0_SSFIFO0_R;
-    printf("ADC DMA complete.\r\n");
+    ;
 }
 
 /**
