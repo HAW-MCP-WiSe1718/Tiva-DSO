@@ -11,6 +11,7 @@
 #include "driverlib/timer.h"        /* TivaWare GPTM DriverLib               */
 #include "driverlib/sysctl.h"       /* TivaWare SysCtl DriverLib             */
 #include "driverlib/interrupt.h"    /* TivaWare Interrupt Library            */
+#include "driverlib/udma.h"         /* TivaWare uDMA DriverLib               */
 #include "adc.h"                    /* ADC Module                            */
 #include "sampler.h"
 
@@ -72,6 +73,12 @@ void vSamplerInit(void)
 
     /* Configure ADC Sample 0 (Vin) complete interrupt                       */
     IntEnable(INT_ADC0SS0);
+
+    /* Configure uDMA channel 14 for ADC0SS0                                 */
+    ADCSequenceDMAEnable(ADC0_BASE, 0);
+    uDMAChannelAttributeDisable(UDMA_CHANNEL_ADC0, UDMA_ATTR_ALL);
+    uDMAChannelControlSet(UDMA_CHANNEL_ADC0 | UDMA_PRI_SELECT,
+                          UDMA_SIZE_16 | UDMA_SRC_INC_NONE | UDMA_DST_INC_16 | UDMA_ARB_1);
 }
 
 /**
@@ -100,14 +107,14 @@ void vSetSamplerTrigger(teSamplerTrigSrc eTriggerSource, teSamplerTrigMode eTrig
     switch (eTriggerSource)
     {
     case EN_SAMPLER_TRIGSRC_CONTINUOUS:
-        /* Configure continuous triggering from timer                        */
-        if (eTriggerMode == EN_SAMPLER_TRIGMODE_STOP)
+        switch (eTriggerMode)
         {
-            vSamplerStop();
-        }
-        else
-        {
+        case EN_SAMPLER_TRIGMODE_NORMAL:
+        case EN_SAMPLER_TRIGMODE_SINGLE:
             vSamplerStartTimer();
+            break;
+        default:
+            vSamplerStop();
         }
         break;
     case EN_SAMPLER_TRIGSRC_COMPARATOR:
@@ -125,10 +132,11 @@ void vSetSamplerTrigger(teSamplerTrigSrc eTriggerSource, teSamplerTrigMode eTrig
 /**
  *  @brief  Stop sample timer and reconfigure ADC sequencer for SSn-bit trig.
  *                                                                           */
-void vSamplerStop(void)
+static void vSamplerStop(void)
 {
     /* Disable ADC Sequence Complete Interrupt                               */
-    ADCIntDisable(ADC0_BASE, ADC_SEQ_VIN);
+    //ADCIntDisable(ADC0_BASE, ADC_SEQ_VIN);
+    ADCIntDisableEx(ADC0_BASE, ADC_INT_DMA_SS0);
     /* Reset ADC trigger to SS0-bit in PSSI register                         */
     ADCSequenceDisable(ADC0_BASE, ADC_SEQ_VIN);
     ADCSequenceConfigure(ADC0_BASE, ADC_SEQ_VIN, ADC_TRIGGER_PROCESSOR, 0);
@@ -150,19 +158,34 @@ static void vSamplerStartTimer(void)
     ADCSequenceDisable(ADC0_BASE, ADC_SEQ_VIN);
     ADCSequenceConfigure(ADC0_BASE, ADC_SEQ_VIN, ADC_TRIGGER_TIMER, 0);
     ADCSequenceEnable(ADC0_BASE, ADC_SEQ_VIN);
-    /* Enable ADC Sequence Complete interrupt                                */
-    ADCIntEnable(ADC0_BASE, ADC_SEQ_VIN);
+
+    /* Enable DMA transfer to buffer                                     */
+    ADCIntEnableEx(ADC0_BASE, ADC_INT_DMA_SS0);
+    uDMAChannelTransferSet(UDMA_CHANNEL_ADC0 | UDMA_PRI_SELECT,
+                           UDMA_MODE_BASIC,
+                           (void*)&ADC0_SSFIFO0_R,
+                           g_aiSampleBuffer,
+                           SAMPLER_BUF_LEN);
+    uDMAChannelEnable(UDMA_CHANNEL_ADC0);
 }
 
 /**
- *  ADC Sample Complete interrupt service routine
+ *  @brief  ADC Sample Complete / DMA Xfer Complete ISR
  *                                                                           */
 void __attribute__((interrupt)) vISR_AdcVinSequencer(void)
 {
-    ADCIntClear(ADC0_BASE, ADC_SEQ_VIN);
+    /* Clear interrupt flags                                                 */
+    ADCIntClearEx(ADC0_BASE, ADC_INT_SS0 | ADC_INT_DMA_SS0);
 
+    /* To be completed                                                       */
+    ;
+}
+
+/**
+ *  @brief  Trigger interrupt called from trigger source to start sampling
+ */
+void __attribute((interrupt)) vISR_SequencerTrigger(void)
+{
     /* Not yet implemented                                                   */
     ;
-
-    g_aiSampleBuffer[0] = ADC0_SSFIFO0_R;
 }

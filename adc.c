@@ -61,8 +61,7 @@ void vAdcInit(void)
     ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQ_VTRIG, 0, ADC_CTL_CH2 | ADC_CTL_END);
 
     /* Configure ADC Sequencer 2 for Temperature sampling                    */
-    /* Sampled continuously by default. Lowest priority                      */
-    ADCSequenceConfigure(ADC0_BASE, ADC_SEQ_TEMP, ADC_TRIGGER_ALWAYS, 2);
+    ADCSequenceConfigure(ADC0_BASE, ADC_SEQ_TEMP, ADC_TRIGGER_PROCESSOR, 2);
     ADCSequenceStepConfigure(ADC0_BASE, ADC_SEQ_TEMP, 0, ADC_CTL_TS | ADC_CTL_END);
 
     /* Enable Sequencers                                                     */
@@ -99,6 +98,9 @@ uint16_t uiGetAdcSampleVtrig(void)
  *                                                                           */
 uint16_t uiGetAdcSampleVtemp(void)
 {
+    /* Trigger Vtrig Sequencer sampling                                      */
+    ADCProcessorTrigger(ADC0_BASE, ADC_SEQ_TEMP | ADC_TRIGGER_SIGNAL);
+
     /* Wait for sample ready                                                 */
     while(ADC0_SSFSTAT2_R & ADC_SSFSTAT2_EMPTY);
 
