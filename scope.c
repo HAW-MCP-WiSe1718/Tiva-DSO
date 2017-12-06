@@ -108,7 +108,6 @@ void vScopeInit(void)
     vSamplerConfigure(aeScopeSamplerTimebase[ucScopeSamplerTimebaseIndex]);
 
     /* High-Level UI init                                                    */
-    vUiInit();
     vUiTouchInit();
 
     /* Force Advance state machine to next state                             */

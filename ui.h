@@ -12,8 +12,4 @@ typedef struct __attribute__((packed)) tag_tsUiCoords {
 } tsUiCoords;
 
 
-/*- Prototypes --------------------------------------------------------------*/
-void vUiInit(void);
-void vUiPoll(void);
-
 #endif /* UI_H_ */
