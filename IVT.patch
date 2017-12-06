@@ -1,7 +1,16 @@
-36a37,38
-> extern void __attribute__((interrupt)) vISR_AdcVinSequencer(void); /* see sampler.c                     */
-> 
-100c102
-<     IntDefaultHandler,                      // ADC Sequence 0
+37,39d36
+< extern void __attribute__((interrupt)) vISR_AdcVinSequencer(void); /* see sampler.c                     */
+< extern void __attribute__((interrupt)) vISR_TriggerInterrupt(void); /* see trigger.c                    */
+< 
+103c100
+<     vISR_AdcVinSequencer,                   // ADC Sequence 0
 ---
->     vISR_AdcVinSequencer,                   // ADC Sequence 0
+>     IntDefaultHandler,                      // ADC Sequence 0
+115c112
+<     vISR_TriggerInterrupt,                  // Analog Comparator 1
+---
+>     IntDefaultHandler,                      // Analog Comparator 1
+165c162
+<     vISR_TriggerInterrupt,                  // GPIO Port P (Summary or P0)
+---
+>     IntDefaultHandler,                      // GPIO Port P (Summary or P0)
