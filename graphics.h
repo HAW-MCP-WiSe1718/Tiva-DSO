@@ -25,8 +25,10 @@ typedef union{
 #define GRAPHICS_REDCOLOR    (tuGraphicsColor){.uiColorValue=0x0000FF00}
 #define GRAPHICS_GREENCOLOR  (tuGraphicsColor){.uiColorValue=0x00FF0000}
 #define GRAPHICS_BLUECOLOR   (tuGraphicsColor){.uiColorValue=0xFF000000}
+#define GRAPHICS_YELLOWCOLOR (tuGraphicsColor){.uiColorValue=0x00FFFF00}
+#define GRAPHICS_WHITECOLOR  (tuGraphicsColor){.uiColorValue=0xFFFFFF00}
 
-#define GRAPHICS_GRIDCOLOR    (tuGraphicsColor){.uiColorValue=0x80808000}
+#define GRAPHICS_GRIDCOLOR    (tuGraphicsColor){.uiColorValue=0x2a2a2a00}
 
 void vGraphicsInit(void);
 
