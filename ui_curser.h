@@ -5,15 +5,31 @@
 
 #define UI_CURSER_BOTTOM 271
 #define UI_CURSER_TOP 16
-#define UI_CURSER_VOLTAGE_LENGTH (8+1) //+1 for \0
-#define UI_CURSER_TEXT_LENGTH 7
+
+#define UI_CURSER_VOLTAGE_LENGTH (7+1) //+1 for \0
+
+#define UI_CURSER_TIME_LENGTH (7+1) //+1 for \0
+
+#define UI_CURSER_DELTA_VOLTAGE_LENGTH (8+1) //+1 for \0
+
+#define UI_CURSER_DELTA_TIME_LENGTH (8+1) //+1 for \0
 
 #define UI_CURSER_BOUNDARY_THICKNES 3
 #define UI_CURSER_BOUNDARY_LENGTH 5
 
-#define UI_CURSER_TEXT_X_OFFSET 25
-#define UI_CURSER_A_TEXT_Y_OFFSET 10
-#define UI_CURSER_B_TEXT_Y_OFFSET 230
+#define UI_CURSER_VOLTAGE_X_OFFSET 25
+#define UI_CURSER_A_VOLTAGE_Y_OFFSET 10
+#define UI_CURSER_B_VOLTAGE_Y_OFFSET 230
+
+#define UI_CURSER_TIME_X_OFFSET 25
+#define UI_CURSER_A_TIME_Y_OFFSET (UI_CURSER_A_VOLTAGE_Y_OFFSET+10)
+#define UI_CURSER_B_TIME_Y_OFFSET (UI_CURSER_B_VOLTAGE_Y_OFFSET+10)
+
+#define UI_CURSER_DELTA_VOLTAGE_X_POSITION 200
+#define UI_CURSER_DELTA_VOLTAGE_Y_POSITION 0
+
+#define UI_CURSER_DELTA_TIME_X_POSITION (UI_CURSER_DELTA_VOLTAGE_X_POSITION+15)
+#define UI_CURSER_DELTA_TIME_Y_POSITION 0
 
 #define UI_CURSER_REF_VOLTAGE 330
 
@@ -27,6 +43,7 @@
 
 #define UI_CURSER_A_COLOR (tuGraphicsColor){.uiColorValue=0x00FFFF00}
 #define UI_CURSER_B_COLOR (tuGraphicsColor){.uiColorValue=0XFFFF0000}
+#define UI_CURSER_TEXT_DELTA_COLOR (tuGraphicsColor){.uiColorValue=0XFFEFEF00}
 
 #define UI_CURSER_A_INIT_POSITION 120
 #define UI_CURSER_B_INIT_POSITION 360
@@ -43,20 +60,41 @@ typedef union{
     uint32_t stateNumber;
 }tuCurserState;
 
+//struct for a single curser
 typedef struct{
     uint16_t uiActualxPosition;
     uint16_t uiNextxPosition;
 
     tuGraphicsColor curserColor;
 
-    tuCurserState state;
-
     uint8_t aucVoltageString[UI_CURSER_VOLTAGE_LENGTH];
     tsGraphicsCoord voltageStringCoord;
+    uint8_t aucTimeString[UI_CURSER_TIME_LENGTH];
+    tsGraphicsCoord timeStringCoord;
 
 }tsCurserStruct;
 
-tsCurserStruct curserA,curserB;
+//struct for a couple of cursers
+typedef struct{
+
+    tsCurserStruct curserA;
+    tsCurserStruct curserB;
+
+    //Information of both Cursers
+    tuCurserState state;
+
+    uint16_t uiTimeBaseMiliPerDiv;
+
+    uint8_t aucDeltaVoltageString[UI_CURSER_DELTA_VOLTAGE_LENGTH];
+    tsGraphicsCoord deltaVoltageStringCoord;
+    uint8_t aucDeltaTimeString[UI_CURSER_DELTA_TIME_LENGTH];
+    tsGraphicsCoord deltaTimeStringCoord;
+
+    tuGraphicsColor curserDeltaColor;
+
+}tsCurserCoupleStruct;
+
+tsCurserCoupleStruct cursers;
 
 void vUICurserInit(void);
 
@@ -64,9 +102,9 @@ void vUICurserPrintLines(uint16_t,tuGraphicsColor);
 
 void vUICurserPrint(tsCurserStruct*);
 void vUICurserErase(tsCurserStruct*);
-void vUICurserRefresh(tsCurserStruct*);
+void vUICurserRefresh(void);
 
-void vUICurserUpdate(tsCurserStruct*);
+void vUICurserUpdate(void);
 
 
 #endif /* UI_CURSER_H_ */
