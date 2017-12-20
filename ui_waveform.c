@@ -62,6 +62,8 @@ void vUIWaveformInit(void)
 {
     uint16_t uiCounter;
 
+    vGraphicsPrintRectangle(UI_WAVEFORM_GRIDXSTART,UI_WAVEFORM_GRIDXEND,UI_WAVEFORM_GRIDYSTART-UI_WAVEFORM_GRID_TOPBOUNDARY_THICKNESS,UI_WAVEFORM_GRIDYSTART-1,GRAPHICS_GRIDCOLOR);
+
     vUIWaveformGridInit();    //print the grid
 
     for(uiCounter=0;uiCounter<UI_WAVEFORM_PRINTBUFFER_SIZE;uiCounter++)
