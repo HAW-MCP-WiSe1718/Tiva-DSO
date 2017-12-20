@@ -1,7 +1,7 @@
 #include "ui_curser.h"
 #include "ui_waveform.h"
 #include "ui_text.h"
-#include "sampler.h"
+
 
 /*
  *  Calculate the voltage Value Text of Cursers
@@ -24,8 +24,8 @@ void static inline vUICurserCalc()
     cursers.uiTimeBaseMiliPerDiv=uiSamplerGetTimebasePerDiv();
 
     //calculate time that is represented by curser position
-    uiTimeA=(cursers.curserA.uiActualxPosition*cursers.uiTimeBaseMiliPerDiv*UI_CURSER_INTEGER_DIVISION_MULTIPLIER)/UI_WAVEFORM_GRIDXSPACE;
-    uiTimeB=(cursers.curserB.uiActualxPosition*cursers.uiTimeBaseMiliPerDiv*UI_CURSER_INTEGER_DIVISION_MULTIPLIER)/UI_WAVEFORM_GRIDXSPACE;
+    uiTimeA=(cursers.curserA.uiActualxPosition/UI_WAVEFORM_GRIDXSPACE)*cursers.uiTimeBaseMiliPerDiv;
+    uiTimeB=(cursers.curserB.uiActualxPosition/UI_WAVEFORM_GRIDXSPACE)*cursers.uiTimeBaseMiliPerDiv;
 
     //CURSER A
     //VOLTAGE
@@ -46,57 +46,42 @@ void static inline vUICurserCalc()
     }
 
     //TIME
-    if(uiTimeA < 10*UI_CURSER_INTEGER_DIVISION_MULTIPLIER)
+
+    if(uiTimeA < 1000)
     {
-        cursers.curserA.aucTimeString[2]='0' + ((uiTimeA)/UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
+        cursers.curserA.aucTimeString[2]='0' + uiTimeA/100;
+        cursers.curserA.aucTimeString[3]='0' + (uiTimeA%100)/10;
+        cursers.curserA.aucTimeString[4]='0' + (uiTimeA%10);
+        cursers.curserA.aucTimeString[5]='M';
+        cursers.curserA.aucTimeString[6]='S';
+    }
+    else if(uiTimeA < 10000)
+    {
+        cursers.curserA.aucTimeString[2]='0' + uiTimeA/1000;
         cursers.curserA.aucTimeString[3]='.';
-        cursers.curserA.aucTimeString[4]='0' + (uiTimeA%UI_CURSER_INTEGER_DIVISION_MULTIPLIER)/10;
-        cursers.curserA.aucTimeString[5]='M';
-        cursers.curserA.aucTimeString[6]='S';
-    }
-    else if(uiTimeA < 100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER)
-    {
-        cursers.curserA.aucTimeString[2]=' ';
-        cursers.curserA.aucTimeString[3]='0' + (uiTimeA)/(10*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.curserA.aucTimeString[4]='0' + (uiTimeA%(10*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/UI_CURSER_INTEGER_DIVISION_MULTIPLIER;
-        cursers.curserA.aucTimeString[5]='M';
-        cursers.curserA.aucTimeString[6]='S';
-    }
-    else if(uiTimeA < 1000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER)
-    {
-        cursers.curserA.aucTimeString[2]='0' + uiTimeA/(100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.curserA.aucTimeString[3]='0' + (uiTimeA%(100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/(10*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.curserA.aucTimeString[4]='0' + (uiTimeA%10)/UI_CURSER_INTEGER_DIVISION_MULTIPLIER;
-        cursers.curserA.aucTimeString[5]='M';
-        cursers.curserA.aucTimeString[6]='S';
-    }
-    else if(uiTimeA < 10000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER)
-    {
-        cursers.curserA.aucTimeString[2]='0' + uiTimeA/(1000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.curserA.aucTimeString[3]='.';
-        cursers.curserA.aucTimeString[4]='0' + (uiTimeA%(1000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/(100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.curserA.aucTimeString[5]='0' + (uiTimeA%(100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/(10*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
+        cursers.curserA.aucTimeString[4]='0' + (uiTimeA%1000)/100;
+        cursers.curserA.aucTimeString[5]='0' + (uiTimeA%100)/10;
         cursers.curserA.aucTimeString[6]='S';
     }
     else
     {
-        cursers.curserA.aucTimeString[2]='0' + uiTimeA/(10000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.curserA.aucTimeString[3]='0' + (uiTimeA%(10000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/(1000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
+        cursers.curserA.aucTimeString[2]='0' + uiTimeA/10000;
+        cursers.curserA.aucTimeString[3]='0' + (uiTimeA%10000)/1000;
         cursers.curserA.aucTimeString[4]='.';
-        cursers.curserA.aucTimeString[5]='0' + (uiTimeA%(1000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/(100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
+        cursers.curserA.aucTimeString[5]='0' + (uiTimeA%1000)/100;
         cursers.curserA.aucTimeString[6]='S';
     }
 
     //COORDINATE
-    if(cursers.curserA.uiActualxPosition+UI_CURSER_VOLTAGE_LENGTH*(TEXT_NUMBEROFGLYPHCOLUMNS+1) > UI_WAVEFORM_GRIDXEND)
+    if(cursers.curserA.uiActualxPosition-UI_CURSER_VOLTAGE_X_OFFSET <= UI_WAVEFORM_GRIDXSTART)
     {
-        cursers.curserA.voltageStringCoord.uiX=cursers.curserA.uiActualxPosition+UI_CURSER_VOLTAGE_BOUNDARYOVERLAP_X_OFFSET;
-        cursers.curserA.timeStringCoord.uiX=cursers.curserA.uiActualxPosition+UI_CURSER_TIME_BOUNDARYOVERLAP_X_OFFSET;
+        cursers.curserA.voltageStringCoord.uiX=cursers.curserA.uiActualxPosition-UI_CURSER_VOLTAGE_X_OFFSET;
+        cursers.curserA.timeStringCoord.uiX=cursers.curserA.uiActualxPosition-UI_CURSER_TIME_X_OFFSET;
     }
     else
     {
-        cursers.curserA.voltageStringCoord.uiX=cursers.curserA.uiActualxPosition+UI_CURSER_VOLTAGE_X_OFFSET;
-        cursers.curserA.timeStringCoord.uiX=cursers.curserA.uiActualxPosition+UI_CURSER_TIME_X_OFFSET;
+        cursers.curserA.voltageStringCoord.uiX=cursers.curserA.uiActualxPosition+3;
+        cursers.curserA.timeStringCoord.uiX=cursers.curserA.uiActualxPosition+3;
     }
 
     //CURSER B
@@ -117,57 +102,42 @@ void static inline vUICurserCalc()
     }
 
     //TIME
-    if(uiTimeB < 10*UI_CURSER_INTEGER_DIVISION_MULTIPLIER)
+
+    if(uiTimeB < 1000)
     {
-        cursers.curserB.aucTimeString[2]='0' + ((uiTimeB)/UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
+        cursers.curserB.aucTimeString[2]='0' + uiTimeB/100;
+        cursers.curserB.aucTimeString[3]='0' + (uiTimeB%100)/10;
+        cursers.curserB.aucTimeString[4]='0' + (uiTimeB%10);
+        cursers.curserB.aucTimeString[5]='M';
+        cursers.curserB.aucTimeString[6]='S';
+    }
+    else if(uiTimeB < 10000)
+    {
+        cursers.curserB.aucTimeString[2]='0' + uiTimeB/1000;
         cursers.curserB.aucTimeString[3]='.';
-        cursers.curserB.aucTimeString[4]='0' + (uiTimeB%UI_CURSER_INTEGER_DIVISION_MULTIPLIER)/10;
-        cursers.curserB.aucTimeString[5]='M';
-        cursers.curserB.aucTimeString[6]='S';
-    }
-    else if(uiTimeB < 100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER)
-    {
-        cursers.curserB.aucTimeString[2]=' ';
-        cursers.curserB.aucTimeString[3]='0' + (uiTimeB)/(10*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.curserB.aucTimeString[4]='0' + (uiTimeB%(10*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/UI_CURSER_INTEGER_DIVISION_MULTIPLIER;
-        cursers.curserB.aucTimeString[5]='M';
-        cursers.curserB.aucTimeString[6]='S';
-    }
-    else if(uiTimeB < 1000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER)
-    {
-        cursers.curserB.aucTimeString[2]='0' + uiTimeB/(100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.curserB.aucTimeString[3]='0' + (uiTimeB%(100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/(10*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.curserB.aucTimeString[4]='0' + (uiTimeB%10)/UI_CURSER_INTEGER_DIVISION_MULTIPLIER;
-        cursers.curserB.aucTimeString[5]='M';
-        cursers.curserB.aucTimeString[6]='S';
-    }
-    else if(uiTimeB < 10000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER)
-    {
-        cursers.curserB.aucTimeString[2]='0' + uiTimeB/(1000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.curserB.aucTimeString[3]='.';
-        cursers.curserB.aucTimeString[4]='0' + (uiTimeB%(1000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/(100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.curserB.aucTimeString[5]='0' + (uiTimeB%(100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/(10*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
+        cursers.curserB.aucTimeString[4]='0' + (uiTimeB%1000)/100;
+        cursers.curserB.aucTimeString[5]='0' + (uiTimeB%100)/10;
         cursers.curserB.aucTimeString[6]='S';
     }
     else
     {
-        cursers.curserB.aucTimeString[2]='0' + uiTimeB/(10000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.curserB.aucTimeString[3]='0' + (uiTimeB%(10000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/(1000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
+        cursers.curserB.aucTimeString[2]='0' + uiTimeB/10000;
+        cursers.curserB.aucTimeString[3]='0' + (uiTimeB%10000)/1000;
         cursers.curserB.aucTimeString[4]='.';
-        cursers.curserB.aucTimeString[5]='0' + (uiTimeB%(1000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/(100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
+        cursers.curserB.aucTimeString[5]='0' + (uiTimeB%1000)/100;
         cursers.curserB.aucTimeString[6]='S';
     }
 
     //COORDINATE
-    if(cursers.curserB.uiActualxPosition+UI_CURSER_VOLTAGE_LENGTH*(TEXT_NUMBEROFGLYPHCOLUMNS+1) > UI_WAVEFORM_GRIDXEND)
+    if(cursers.curserB.uiActualxPosition-UI_CURSER_VOLTAGE_X_OFFSET <= UI_WAVEFORM_GRIDXSTART)
     {
-        cursers.curserB.voltageStringCoord.uiX=cursers.curserB.uiActualxPosition+UI_CURSER_VOLTAGE_BOUNDARYOVERLAP_X_OFFSET;
-        cursers.curserB.timeStringCoord.uiX=cursers.curserB.uiActualxPosition+UI_CURSER_TIME_BOUNDARYOVERLAP_X_OFFSET;
+        cursers.curserB.voltageStringCoord.uiX=cursers.curserB.uiActualxPosition-UI_CURSER_VOLTAGE_X_OFFSET;
+        cursers.curserB.timeStringCoord.uiX=cursers.curserB.uiActualxPosition-UI_CURSER_TIME_X_OFFSET;
     }
     else
     {
-        cursers.curserB.voltageStringCoord.uiX=cursers.curserB.uiActualxPosition+UI_CURSER_VOLTAGE_X_OFFSET;
-        cursers.curserB.timeStringCoord.uiX=cursers.curserB.uiActualxPosition+UI_CURSER_TIME_X_OFFSET;
+        cursers.curserB.voltageStringCoord.uiX=cursers.curserB.uiActualxPosition+3;
+        cursers.curserB.timeStringCoord.uiX=cursers.curserB.uiActualxPosition+3;
     }
 
     //Calculate Deltas
@@ -181,49 +151,31 @@ void static inline vUICurserCalc()
         uiDeltaTime=uiTimeB-uiTimeA;
     }
 
-    //TIME
-    if(uiDeltaTime < 10*UI_CURSER_INTEGER_DIVISION_MULTIPLIER)
+    if(uiDeltaTime < 1000)
     {
-        cursers.aucDeltaTimeString[3]='0' + ((uiDeltaTime)/UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
+        cursers.aucDeltaTimeString[3]='0' + uiDeltaTime/100;
+        cursers.aucDeltaTimeString[4]='0' + (uiDeltaTime%100)/10;
+        cursers.aucDeltaTimeString[5]='0' + (uiDeltaTime%10);
+        cursers.aucDeltaTimeString[6]='M';
+        cursers.aucDeltaTimeString[7]='S';
+    }
+    else if(uiDeltaTime < 10000)
+    {
+        cursers.aucDeltaTimeString[3]='0' + uiDeltaTime/1000;
         cursers.aucDeltaTimeString[4]='.';
-        cursers.aucDeltaTimeString[5]='0' + (uiDeltaTime%UI_CURSER_INTEGER_DIVISION_MULTIPLIER)/10;
-        cursers.aucDeltaTimeString[6]='M';
-        cursers.aucDeltaTimeString[7]='S';
-    }
-    else if(uiDeltaTime < 100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER)
-    {
-        cursers.aucDeltaTimeString[3]=' ';
-        cursers.aucDeltaTimeString[4]='0' + (uiDeltaTime)/(10*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.aucDeltaTimeString[5]='0' + (uiDeltaTime%(10*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/UI_CURSER_INTEGER_DIVISION_MULTIPLIER;
-        cursers.aucDeltaTimeString[6]='M';
-        cursers.aucDeltaTimeString[7]='S';
-    }
-    else if(uiDeltaTime < 1000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER)
-    {
-        cursers.aucDeltaTimeString[3]='0' + uiDeltaTime/(100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.aucDeltaTimeString[4]='0' + (uiDeltaTime%(100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/(10*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.aucDeltaTimeString[5]='0' + (uiDeltaTime%10)/UI_CURSER_INTEGER_DIVISION_MULTIPLIER;
-        cursers.aucDeltaTimeString[6]='M';
-        cursers.aucDeltaTimeString[7]='S';
-    }
-    else if(uiDeltaTime < 10000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER)
-    {
-        cursers.aucDeltaTimeString[3]='0' + uiDeltaTime/(1000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.aucDeltaTimeString[4]='.';
-        cursers.aucDeltaTimeString[5]='0' + (uiDeltaTime%(1000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/(100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.aucDeltaTimeString[6]='0' + (uiDeltaTime%(100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/(10*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
+        cursers.aucDeltaTimeString[5]='0' + (uiDeltaTime%1000)/100;
+        cursers.aucDeltaTimeString[6]='0' + (uiDeltaTime%100)/10;
         cursers.aucDeltaTimeString[7]='S';
     }
     else
     {
-        cursers.aucDeltaTimeString[3]='0' + uiDeltaTime/(10000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
-        cursers.aucDeltaTimeString[4]='0' + (uiDeltaTime%(10000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/(1000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
+        cursers.aucDeltaTimeString[3]='0' + uiDeltaTime/10000;
+        cursers.aucDeltaTimeString[4]='0' + (uiDeltaTime%10000)/1000;
         cursers.aucDeltaTimeString[5]='.';
-        cursers.aucDeltaTimeString[6]='0' + (uiDeltaTime%(1000*UI_CURSER_INTEGER_DIVISION_MULTIPLIER))/(100*UI_CURSER_INTEGER_DIVISION_MULTIPLIER);
+        cursers.aucDeltaTimeString[6]='0' + (uiDeltaTime%1000)/100;
         cursers.aucDeltaTimeString[7]='S';
     }
 
-    //VOLTAGE
     if(uiDeltaVoltageAvaiable)
     {
         if(uiVoltageA>uiVoltageB)
@@ -278,7 +230,7 @@ void vUICurserInit(void)
     cursers.curserB.aucVoltageString[6]='V';
     cursers.curserB.aucVoltageString[7]='\0';
 
-    cursers.curserA.aucTimeString[0]='T';
+    cursers.curserA.aucTimeString[0]='t';
     cursers.curserA.aucTimeString[1]='=';
     cursers.curserA.aucTimeString[2]='X';
     cursers.curserA.aucTimeString[3]='X';
@@ -287,7 +239,7 @@ void vUICurserInit(void)
     cursers.curserA.aucTimeString[6]='X';
     cursers.curserA.aucTimeString[7]='\0';
 
-    cursers.curserB.aucTimeString[0]='T';
+    cursers.curserB.aucTimeString[0]='t';
     cursers.curserB.aucTimeString[1]='=';
     cursers.curserB.aucTimeString[2]='X';
     cursers.curserB.aucTimeString[3]='X';
@@ -296,8 +248,8 @@ void vUICurserInit(void)
     cursers.curserB.aucTimeString[6]='X';
     cursers.curserB.aucTimeString[7]='\0';
 
-    cursers.aucDeltaTimeString[0]='<';
-    cursers.aucDeltaTimeString[1]='T';
+    cursers.aucDeltaTimeString[0]='d';
+    cursers.aucDeltaTimeString[1]='t';
     cursers.aucDeltaTimeString[2]='=';
     cursers.aucDeltaTimeString[3]='X';
     cursers.aucDeltaTimeString[4]='X';
@@ -306,7 +258,7 @@ void vUICurserInit(void)
     cursers.aucDeltaTimeString[7]='X';
     cursers.aucDeltaTimeString[8]='\0';
 
-    cursers.aucDeltaVoltageString[0]='<';
+    cursers.aucDeltaVoltageString[0]='d';
     cursers.aucDeltaVoltageString[1]='V';
     cursers.aucDeltaVoltageString[2]='=';
     cursers.aucDeltaVoltageString[3]='X';
@@ -380,14 +332,14 @@ void inline vUICurserErase(tsCurserStruct* curser)
  */
 void inline vUICurserTextErase()
 {
-    vTextEraseLine(cursers.curserA.voltageStringCoord,UI_CURSER_VOLTAGE_LENGTH);
-    vTextEraseLine(cursers.curserA.timeStringCoord,UI_CURSER_TIME_LENGTH);
+    vTextEraseLine(cursers.curserA.voltageStringCoord,UI_CURSER_VOLTAGE_LENGTH-1);
+    vTextEraseLine(cursers.curserA.timeStringCoord,UI_CURSER_TIME_LENGTH-1);
 
-    vTextEraseLine(cursers.curserB.voltageStringCoord,UI_CURSER_VOLTAGE_LENGTH);
-    vTextEraseLine(cursers.curserB.timeStringCoord,UI_CURSER_TIME_LENGTH);
+    vTextEraseLine(cursers.curserB.voltageStringCoord,UI_CURSER_VOLTAGE_LENGTH-1);
+    vTextEraseLine(cursers.curserB.timeStringCoord,UI_CURSER_TIME_LENGTH-1);
 
-    vTextEraseLine(cursers.deltaVoltageStringCoord,UI_CURSER_DELTA_VOLTAGE_LENGTH);
-    vTextEraseLine(cursers.deltaTimeStringCoord,UI_CURSER_DELTA_TIME_LENGTH);
+    vTextEraseLine(cursers.deltaVoltageStringCoord,UI_CURSER_DELTA_VOLTAGE_LENGTH-1);
+    vTextEraseLine(cursers.deltaTimeStringCoord,UI_CURSER_DELTA_TIME_LENGTH-1);
 }
 
 /*

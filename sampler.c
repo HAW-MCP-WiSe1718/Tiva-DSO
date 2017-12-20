@@ -28,7 +28,7 @@ global volatile bool g_bSamplerDataReady;   /* Used by ISR                   */
 
 /*- Module variables --------------------------------------------------------*/
 static volatile bool bSamplerSlowTimebase;
-static teSamplerTimebase eCurrentTimebase;
+
 
 /*- Inline functions --------------------------------------------------------*/
 /**
@@ -114,7 +114,6 @@ void vSamplerConfigure(teSamplerTimebase eTimebase)
 
     /* Load new Timebase configuration into timer                            */
     TimerLoadSet(TIMER1_BASE, TIMER_BOTH, (uint32_t)eTimebase);
-    eCurrentTimebase = eTimebase;
 
     /* Clear old buffer entries                                              */
     vSamplerClearBuffer(g_aiSampleBuffer);
@@ -203,46 +202,6 @@ bool bIsSamplerDataReady(void)
 void vSamplerDataInvalidate(void)
 {
     g_bSamplerDataReady = false;
-}
-
-/**
- *  @brief  Return current timebase setting in milliseconds per horizontal
- *          division
- *
- *  @return uint16_t    Milliseconds per division                            */
-uint16_t uiSamplerGetTimebasePerDiv(void)
-{
-    assert(IS_SAMPLER_TIMEBASE(eCurrentTimebase));
-
-    switch (eCurrentTimebase)
-    {
-    case EN_SAMPLER_TIMEBASE_1ms:
-        return 1;
-    case EN_SAMPLER_TIMEBASE_2ms:
-        return 2;
-    case EN_SAMPLER_TIMEBASE_5ms:
-        return 5;
-    case EN_SAMPLER_TIMEBASE_10ms:
-        return 10;
-    case EN_SAMPLER_TIMEBASE_20ms:
-        return 20;
-    case EN_SAMPLER_TIMEBASE_50ms:
-        return 50;
-    case EN_SAMPLER_TIMEBASE_100ms:
-        return 100;
-    case EN_SAMPLER_TIMEBASE_200ms:
-        return 200;
-    case EN_SAMPLER_TIMEBASE_500ms:
-        return 500;
-    case EN_SAMPLER_TIMEBASE_1s:
-        return 1000;
-    case EN_SAMPLER_TIMEBASE_2s:
-        return 2000;
-    case EN_SAMPLER_TIMEBASE_5s:
-        return 5000;
-    default:
-        return 0xFFFF;
-    }
 }
 
 /**

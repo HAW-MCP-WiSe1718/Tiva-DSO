@@ -79,6 +79,5 @@ void vSamplerStop(void);
 bool bIsSamplerBusy(void);
 bool bIsSamplerDataReady(void);
 void vSamplerDataInvalidate(void);
-uint16_t uiSamplerGetTimebasePerDiv(void);
 
 #endif /* SAMPLER_H_ */
