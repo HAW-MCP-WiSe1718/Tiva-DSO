@@ -20,7 +20,6 @@ void static vUIWaveformUpdatePrintBuffer(int16_t* p_aiSampleBuffer,uint16_t uiX_
         else
         {
             aiPrintBuffer[uiBufferCounter]=-1;
-            uiBufferCounter = uiX_End+1;
         }
 
         uiBufferCounter++;
@@ -63,14 +62,14 @@ void vUIWaveformInit(void)
 {
     uint16_t uiCounter;
 
+    vGraphicsPrintRectangle(UI_WAVEFORM_GRIDXSTART,UI_WAVEFORM_GRIDXEND,UI_WAVEFORM_GRIDYSTART-UI_WAVEFORM_GRID_TOPBOUNDARY_THICKNESS,UI_WAVEFORM_GRIDYSTART-1,GRAPHICS_GRIDCOLOR);
+
     vUIWaveformGridInit();    //print the grid
 
     for(uiCounter=0;uiCounter<UI_WAVEFORM_PRINTBUFFER_SIZE;uiCounter++)
     {
         aiPrintBuffer[uiCounter]=0;
     }
-
-
 }
 
 
@@ -100,34 +99,34 @@ void vUIWaveformPrintPartOfWave(uint16_t uiX_Start,uint16_t uiX_End,tuGraphicsCo
     while(aiPrintBuffer[uixCounter]!=-1 && uixCounter <= uiX_End)   //printing until first missing point
     {
 
-    uiBresenhamEnable=0;
-    if(uixCounter!=0)
-    {
-        idY=aiPrintBuffer[uixCounter]-aiPrintBuffer[uixCounter-1];
-        if(idY > 1 || idY < -1)                             //if bresenham is nececary
+        uiBresenhamEnable=0;
+        if(uixCounter!=0)
         {
-            uiBresenhamEnable=1;
+            idY=aiPrintBuffer[uixCounter]-aiPrintBuffer[uixCounter-1];
+            if(idY > 1 || idY < -1)                             //if bresenham is nececary
+            {
+                uiBresenhamEnable=1;
+            }
         }
-    }
 
-    dataPointA.uiX=uixCounter-1;
-    dataPointA.uiY=aiPrintBuffer[uixCounter-1];    //preparing coordinates of datapoints
-    dataPointB.uiX=uixCounter;
-    dataPointB.uiY=aiPrintBuffer[uixCounter];
+        dataPointA.uiX=uixCounter-1;
+        dataPointA.uiY=aiPrintBuffer[uixCounter-1];    //preparing coordinates of datapoints
+        dataPointB.uiX=uixCounter;
+        dataPointB.uiY=aiPrintBuffer[uixCounter];
 
 
-    if(uiBresenhamEnable)  //draw actual data point or print line between actual and next point. Depending of what is neccary to print a continous wave.
-    {
-        vGraphicsDrawLine(dataPointA,dataPointB,waveColor);
-    }
-    else
-    {
-        vDisplayWindowSet(uixCounter,uixCounter,DISPLAY_SIZE_Y-1-aiPrintBuffer[uixCounter],DISPLAY_SIZE_Y-1-aiPrintBuffer[uixCounter]);
-        vDisplayStartPixelWrite();
-        vGraphicsPixelWrite(waveColor);
-    }
+        if(uiBresenhamEnable)  //draw actual data point or print line between actual and next point. Depending of what is neccary to print a continous wave.
+        {
+            vGraphicsDrawLine(dataPointA,dataPointB,waveColor);
+        }
+        else
+        {
+            vDisplayWindowSet(uixCounter,uixCounter,DISPLAY_SIZE_Y-1-aiPrintBuffer[uixCounter],DISPLAY_SIZE_Y-1-aiPrintBuffer[uixCounter]);
+            vDisplayStartPixelWrite();
+            vGraphicsPixelWrite(waveColor);
+        }
 
-    uixCounter++;   //increment loop counter
+        uixCounter++;   //increment loop counter
 
     }
 
@@ -174,8 +173,8 @@ void vUIWaveformUpdatePartOfWave(int16_t* p_aiSampleBuffer,uint16_t uiX_Start,ui
     vUIWaveformPrintPartOfWave(0,479,UI_WAVEFORM_WAVE_COLOR);
 
     //Refresh the cursers
-    vUICurserRefresh(&curserA);
-    vUICurserRefresh(&curserB);
+    vUICurserRefresh();
+
 }
 
 /**

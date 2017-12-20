@@ -224,8 +224,8 @@ static void vScopeMainUi(void)
         vSamplerDataInvalidate();
 
         vUIWaveformUpdateWave(g_aiSampleBuffer);
-        vUICurserUpdate(&curserA);
-		vUICurserUpdate(&curserB);
+        vUICurserUpdate();
+
     }
     else
     {
@@ -378,9 +378,9 @@ void vScopeMainTouch_SetCursor1(tsUiCoords sTouchCoords)
     /* Debug                                                                 */
     printf("[Scope]\tButton pressed:\tSetCursor1\r\n");
 
-    curserA.uiNextxPosition = (unsigned)sTouchCoords.iX;
-    curserA.state.stateSeperate.ucCurserEnabled = 1;
-    vUICurserUpdate(&curserA);
+    cursers.curserA.uiNextxPosition = (unsigned)sTouchCoords.iX;
+    cursers.state.stateSeperate.ucCurserEnabled = 1;
+    vUICurserUpdate();
 }
 
 void vScopeMainTouch_DisableCursors(tsUiCoords sTouchCoords)
@@ -388,10 +388,9 @@ void vScopeMainTouch_DisableCursors(tsUiCoords sTouchCoords)
     /* Debug                                                                 */
     printf("[Scope]\tButton pressed:\tDisableCursors\r\n");
 
-    curserA.state.stateSeperate.ucCurserEnabled = false;
-    curserB.state.stateSeperate.ucCurserEnabled = false;
-    vUICurserUpdate(&curserA);
-	vUICurserUpdate(&curserB);
+    cursers.state.stateSeperate.ucCurserEnabled = false;
+    cursers.state.stateSeperate.ucCurserEnabled = false;
+    vUICurserUpdate();
 }
 
 void vScopeMainTouch_SetCursor2(tsUiCoords sTouchCoords)
@@ -399,7 +398,7 @@ void vScopeMainTouch_SetCursor2(tsUiCoords sTouchCoords)
     /* Debug                                                                 */
     printf("[Scope]\tButton pressed:\tSetCursor2\r\n");
 
-    curserB.uiNextxPosition = (unsigned)sTouchCoords.iX;
-    curserB.state.stateSeperate.ucCurserEnabled = 1;
-	vUICurserUpdate(&curserB);
+    cursers.curserB.uiNextxPosition = (unsigned)sTouchCoords.iX;
+    cursers.state.stateSeperate.ucCurserEnabled = 1;
+	vUICurserUpdate();
 }
