@@ -39,7 +39,7 @@ static const char* acScopeUiTimebaseString[] = { "1MS/DIV", "2MS/DIV", "5MS/DIV"
 												 "10MS/DIV", "20MS/DIV", "50MS/DIV",
 												 "100MS/DIV", "200MS/DIV", "500MS/DIV",
 												 "1S/DIV", "2S/DIV", "5S/DIV" };
-static const teScopeMode aeScopeModes[] = { EN_SCOPE_MODE_STOP/*, EN_SCOPE_MODE_SINGLE*/, EN_SCOPE_MODE_RUN };
+static const teScopeMode aeScopeModes[] = { EN_SCOPE_MODE_STOP, EN_SCOPE_MODE_SINGLE, EN_SCOPE_MODE_RUN };
 
 static teScopeState eScopeState = EN_SCOPE_STATE_INIT;
 static uint8_t ucScopeUiTriggerEdgeIndex = 0;
@@ -112,7 +112,7 @@ void vScopeInit(void)
 
     /* Force Advance state machine to next state                             */
     eScopeState = EN_SCOPE_STATE_SPLASH;
-    printf("[Scope]\tState changed:\tSplashScreen\r\n");
+    //printf("[Scope]\tState changed:\tSplashScreen\r\n");
 }
 
 /**
@@ -126,19 +126,19 @@ void vScopePoll(void)
         /* Should never be entered in normal program loop                    */
         vScopeInit();
         eScopeState = EN_SCOPE_STATE_SPLASH;
-        printf("[Scope]\tState changed:\tSplashScreen\r\n");
+        //printf("[Scope]\tState changed:\tSplashScreen\r\n");
         break;
     case EN_SCOPE_STATE_SPLASH:
         /* Display splash screen                                             */
         vScopeShowSplash();
         eScopeState = EN_SCOPE_STATE_MAINUIINIT;
-        printf("[Scope]\tState changed:\tMainUiInit\r\n");
+        //printf("[Scope]\tState changed:\tMainUiInit\r\n");
         break;
     case EN_SCOPE_STATE_MAINUIINIT:
         /* Initialise main UI (touch areas, texts etc.)                      */
         vScopeMainUiInit();
         eScopeState = EN_SCOPE_STATE_MAIN;
-        printf("[Scope]\tState changed:\tMainUi\r\n");
+        //printf("[Scope]\tState changed:\tMainUi\r\n");
         break;
     case EN_SCOPE_STATE_MAIN:
         /* Handle main UI                                                    */
@@ -160,7 +160,7 @@ static void vScopeShowSplash(void)
     /* Display splash image                                                  */
     vTextPrintString("SCOPE   V1.0", (tsGraphicsCoord){195, 110}, GRAPHICS_WHITECOLOR);
     vTextPrintString("E6-MC/01 RMS", (tsGraphicsCoord){195, 120}, GRAPHICS_WHITECOLOR);
-    vTextPrintString(" 06.12.2017 ", (tsGraphicsCoord){195, 140}, GRAPHICS_WHITECOLOR);
+    vTextPrintString(" 08.01.2018 ", (tsGraphicsCoord){195, 140}, GRAPHICS_WHITECOLOR);
     vTextPrintString("EHLERS, KOCHAN, KROH", (tsGraphicsCoord){20, 250}, GRAPHICS_WHITECOLOR);
 
     vDelay_ms(SCOPE_SPLASH_DURATION * 1000);
@@ -214,23 +214,23 @@ static void vScopeMainUi(void)
     if (!bIsSamplerBusy() && !bIsTriggerArmed() && (eGetScopeMode() == EN_SCOPE_MODE_RUN))
     {
         /* Auto re-trigger when in RUN mode                                  */
-        printf("Armed\r\n");
+        //printf("Armed\r\n");
         vTriggerArm();
     }
     if (bIsSamplerDataReady())
     {
         /* Refresh waveform display                                          */
-        printf("Update %4d\r\n", g_aiSampleBuffer[0]);
+        //printf("Update %4d\r\n", g_aiSampleBuffer[0]);
         vSamplerDataInvalidate();
 
         vUIWaveformUpdateWave(g_aiSampleBuffer);
-        vUICurserUpdate(&curserA);
-		vUICurserUpdate(&curserB);
+        vUICurserUpdate();
+
     }
     else
     {
         /* Nothing to be done                                                */
-        printf(".\r\n");
+        //printf(".\r\n");
     }
 
     /* Limit refresh rate to avoid flicker                                   */
@@ -243,7 +243,7 @@ void vScopeMainTouch_RunStop(tsUiCoords sTouchCoords)
     ucScopeModeIndex = (ucScopeModeIndex + 1) % LENGTHOF(aeScopeModes);
 
     /* Debug                                                                 */
-    printf("[Scope]\tButton pressed:\tRUN/STOP (%d)\r\n", ucScopeModeIndex);
+    //printf("[Scope]\tButton pressed:\tRUN/STOP (%d)\r\n", ucScopeModeIndex);
 
     /* Disarm trigger when switching to STOP                                 */
     switch (eGetScopeMode())
@@ -274,7 +274,7 @@ void vScopeMainTouch_TriggerType(tsUiCoords sTouchCoords)
     vTriggerConfigure(eGetScopeTriggerEdge(), eGetScopeTriggerSource());
 
     /* Debug                                                                 */
-    printf("[Scope]\tButton pressed:\tTriggerType (%d)\r\n", ucScopeUiTriggerSourceIndex);
+    //printf("[Scope]\tButton pressed:\tTriggerType (%d)\r\n", ucScopeUiTriggerSourceIndex);
 
     /* Update UI															 */
     vTextEraseLine(TEXT_TRIGSRC_COORD,12);
@@ -307,7 +307,7 @@ void vScopeMainTouch_TriggerEdge(tsUiCoords sTouchCoords)
     vTriggerConfigure(eGetScopeTriggerEdge(), eGetScopeTriggerSource());
 
     /* Debug                                                                 */
-    printf("[Scope]\tButton pressed:\tTriggerEdge (%d)r\n", ucScopeUiTriggerEdgeIndex);
+    //printf("[Scope]\tButton pressed:\tTriggerEdge (%d)r\n", ucScopeUiTriggerEdgeIndex);
 
     /* Update UI														 	 */
 	vTextEraseLine(TEXT_TRIGEDGE_COORD, 2);
@@ -339,7 +339,7 @@ void vScopeMainTouch_TimebaseSlower(tsUiCoords sTouchCoords)
     vSamplerConfigure(eGetScopeSamplerTimebase());
 
     /* Debug                                                                 */
-    printf("[Scope]\tButton pressed:\tTimebaseSlow (%d)\r\n", ucScopeSamplerTimebaseIndex);
+    //printf("[Scope]\tButton pressed:\tTimebaseSlow (%d)\r\n", ucScopeSamplerTimebaseIndex);
 
     /* Update UI															 */
     vTextEraseLine(TEXT_TIMEBASE_COORD, 10);
@@ -360,7 +360,7 @@ void vScopeMainTouch_TimebaseFaster(tsUiCoords sTouchCoords)
     vSamplerConfigure(eGetScopeSamplerTimebase());
 
     /* Debug                                                                 */
-    printf("[Scope]\tButton pressed:\tTimebaseFast (%d)\r\n", ucScopeSamplerTimebaseIndex);
+    //printf("[Scope]\tButton pressed:\tTimebaseFast (%d)\r\n", ucScopeSamplerTimebaseIndex);
 
     /* Update UI															 */
     vTextEraseLine(TEXT_TIMEBASE_COORD, 10);
@@ -376,30 +376,29 @@ void vScopeMainTouch_TimebaseFaster(tsUiCoords sTouchCoords)
 void vScopeMainTouch_SetCursor1(tsUiCoords sTouchCoords)
 {
     /* Debug                                                                 */
-    printf("[Scope]\tButton pressed:\tSetCursor1\r\n");
+    //printf("[Scope]\tButton pressed:\tSetCursor1\r\n");
 
-    curserA.uiNextxPosition = (unsigned)sTouchCoords.iX;
-    curserA.state.stateSeperate.ucCurserEnabled = 1;
-    vUICurserUpdate(&curserA);
+    cursers.curserA.uiNextxPosition = (unsigned)sTouchCoords.iX;
+    cursers.state.stateSeperate.ucCurserEnabled = 1;
+    vUICurserUpdate();
 }
 
 void vScopeMainTouch_DisableCursors(tsUiCoords sTouchCoords)
 {
     /* Debug                                                                 */
-    printf("[Scope]\tButton pressed:\tDisableCursors\r\n");
+    //printf("[Scope]\tButton pressed:\tDisableCursors\r\n");
 
-    curserA.state.stateSeperate.ucCurserEnabled = false;
-    curserB.state.stateSeperate.ucCurserEnabled = false;
-    vUICurserUpdate(&curserA);
-	vUICurserUpdate(&curserB);
+    cursers.state.stateSeperate.ucCurserEnabled = false;
+    cursers.state.stateSeperate.ucCurserEnabled = false;
+    vUICurserUpdate();
 }
 
 void vScopeMainTouch_SetCursor2(tsUiCoords sTouchCoords)
 {
     /* Debug                                                                 */
-    printf("[Scope]\tButton pressed:\tSetCursor2\r\n");
+    //printf("[Scope]\tButton pressed:\tSetCursor2\r\n");
 
-    curserB.uiNextxPosition = (unsigned)sTouchCoords.iX;
-    curserB.state.stateSeperate.ucCurserEnabled = 1;
-	vUICurserUpdate(&curserB);
+    cursers.curserB.uiNextxPosition = (unsigned)sTouchCoords.iX;
+    cursers.state.stateSeperate.ucCurserEnabled = 1;
+	vUICurserUpdate();
 }

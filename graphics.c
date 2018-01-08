@@ -59,7 +59,6 @@ void vGraphicsDrawLine(tsGraphicsCoord A,tsGraphicsCoord B,tuGraphicsColor lineC
 
     uint16_t uiX=A.uiX,uiY=A.uiY,uidX=B.uiX-A.uiX,uidY;
     int16_t iDelta,iStep=1;
-    uint8_t uiRisingLine=1;
 
     if(B.uiY-A.uiY > 0)   //decision if line shall be printed in negative or positive uiY-direction
     {
@@ -68,7 +67,6 @@ void vGraphicsDrawLine(tsGraphicsCoord A,tsGraphicsCoord B,tuGraphicsColor lineC
     else
     {
         uidY=A.uiY-B.uiY;
-        uiRisingLine=0;
         iStep=-1;
     }
 

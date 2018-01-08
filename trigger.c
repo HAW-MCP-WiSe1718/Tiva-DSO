@@ -45,7 +45,7 @@ void vTriggerInit(void)
 
     /* Configure GPIOC4/5 as Comparator inputs                               */
     GPIOPinTypeComparator(TRIGGER_COMP_G_PORT, TRIGGER_COMP_G_PIN);
-    IntEnable(INT_COMP0);
+    IntEnable(INT_COMP1);
 
     /* Default settings                                                      */
     vTriggerConfigure(EN_TRIGGER_EDGE_RISING, EN_TRIGGER_SRC_CONTINUOUS);
@@ -80,15 +80,15 @@ void vTriggerConfigure(teTriggerEdge eTrigEdge, teTriggerSrc eTrigSrc)
         {
         case EN_TRIGGER_EDGE_RISING:
             /* Trigger on comparator rising edge                             */
-            ComparatorConfigure(COMP_BASE, TRIGGER_COMP_IN, COMP_INT_RISE);
+            ComparatorConfigure(COMP_BASE, TRIGGER_COMP_IN, COMP_INT_RISE | COMP_ASRCP_PIN);
             break;
         case EN_TRIGGER_EDGE_FALLING:
             /* Trigger on comparator falling edge                            */
-            ComparatorConfigure(COMP_BASE, TRIGGER_COMP_IN, COMP_INT_FALL);
+            ComparatorConfigure(COMP_BASE, TRIGGER_COMP_IN, COMP_INT_FALL | COMP_ASRCP_PIN);
             break;
         case EN_TRIGGER_EDGE_BOTH:
             /* Trigger on both edges                                         */
-            ComparatorConfigure(COMP_BASE, TRIGGER_COMP_IN, COMP_INT_BOTH);
+            ComparatorConfigure(COMP_BASE, TRIGGER_COMP_IN, COMP_INT_BOTH | COMP_ASRCP_PIN);
             break;
         default:
             /* Invalid configuration                                         */
@@ -99,13 +99,13 @@ void vTriggerConfigure(teTriggerEdge eTrigEdge, teTriggerSrc eTrigSrc)
         /* Use GPIO Pin P0 as external trigger input                         */
         switch (eTrigEdge)
         {
-        case EN_TRIGGER_EDGE_RISING:
+        case EN_TRIGGER_EDGE_RISING: // ! Invertiert !
             /* Trigger on P0 rising edge                                     */
-            GPIOIntTypeSet(TRIGGER_EXT_PORT, TRIGGER_EXT_PIN, GPIO_DISCRETE_INT | GPIO_RISING_EDGE);
+            GPIOIntTypeSet(TRIGGER_EXT_PORT, TRIGGER_EXT_PIN, GPIO_DISCRETE_INT | GPIO_FALLING_EDGE);
             break;
         case EN_TRIGGER_EDGE_FALLING:
             /* Trigger on P0 falling edge                                    */
-            GPIOIntTypeSet(TRIGGER_EXT_PORT, TRIGGER_EXT_PIN, GPIO_DISCRETE_INT | GPIO_FALLING_EDGE);
+            GPIOIntTypeSet(TRIGGER_EXT_PORT, TRIGGER_EXT_PIN, GPIO_DISCRETE_INT | GPIO_RISING_EDGE);
             break;
         case EN_TRIGGER_EDGE_BOTH:
             /* Trigger on P0 on both edges                                   */
@@ -168,7 +168,7 @@ void vTriggerDisarm(void)
 
     /* Clear any pending interrupt request                                   */
     IntPendClear(INT_GPIOP0);
-    IntPendClear(INT_COMP0);
+    IntPendClear(INT_COMP1);
 
     /* Clear status bit                                                      */
     g_bTriggerArmed = false;
